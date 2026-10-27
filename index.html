@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#eef1ed" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101412" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Wedding Weather">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="format-detection" content="telephone=no">
+<title>Wedding Weekend Weather</title>
+<style>
+  /* Layout: one centered column; three day cards side by side on desktop, stacked on phones; hourly rain charts below. */
+  :root {
+    --bg: #eef1ed;
+    --surface: #fbfcfa;
+    --ink: #18211d;
+    --ink-2: #52605a;
+    --ink-3: #7c8882;
+    --line: #d9dfda;
+    --hover: #e8ede9;
+    --accent: #244c3c;
+    --accent-ink: #fbfcfa;
+    --rain: #2a78d6;
+    --rain-soft: #9ec5f4;
+    --note-bg: #f6efe2;
+    --note-line: #e3cfa9;
+    --note-ink: #5a4520;
+    --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101412;
+      --surface: #181e1b;
+      --ink: #e7ece9;
+      --ink-2: #a9b4ae;
+      --ink-3: #7d8983;
+      --line: #2b332f;
+      --hover: #222a26;
+      --accent: #a8d5bf;
+      --accent-ink: #101412;
+      --rain: #5598e7;
+      --rain-soft: #1c5cab;
+      --note-bg: #2a2418;
+      --note-line: #4d3f24;
+      --note-ink: #ecdab6;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.5 var(--sans);
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .wrap {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding-top: max(24px, env(safe-area-inset-top, 0px));
+    padding-bottom: max(40px, env(safe-area-inset-bottom, 0px));
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    display: grid;
+    gap: 36px;
+  }
+
+  /* Header */
+  .top { display: grid; gap: 14px; }
+  .eyebrow {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  h1 {
+    margin: 0;
+    font: 600 clamp(28px, 6vw, 40px)/1.1 var(--display);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+  .btn {
+    appearance: none;
+    border: 0;
+    border-radius: 999px;
+    min-height: 44px;
+    padding: 0 20px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font: 600 15px/1 var(--sans);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .btn:focus-visible { outline: 3px solid var(--rain); outline-offset: 3px; }
+  .btn:active { transform: translateY(1px); }
+  .btn[disabled] { opacity: 0.75; cursor: progress; }
+  .spin {
+    display: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    animation: spin 0.8s linear infinite;
+  }
+  .btn.loading .spin { display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .stamp { margin: 0; font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+  .notice {
+    border: 1px solid var(--note-line);
+    background: var(--note-bg);
+    color: var(--note-ink);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 14px;
+    margin-top: -16px;
+  }
+  .notice p { margin: 0; }
+  .notice p + p { margin-top: 4px; }
+
+  /* Sections */
+  section { display: grid; gap: 14px; min-width: 0; }
+  .section-h {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .section-sub { margin: -8px 0 0; font-size: 14px; color: var(--ink-2); max-width: 62ch; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 18px;
+    min-width: 0;
+  }
+  .card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .card-head h3 { margin: 0; font: 600 19px/1.2 var(--display); }
+  .card-head .date { font-size: 14px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+  /* Day cards */
+  .days { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .day { display: grid; gap: 14px; align-content: start; }
+  .temp { display: flex; align-items: baseline; gap: 12px; }
+  .hi { font: 300 52px/1 var(--display); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+  .lo { font-size: 15px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .cond { margin: -6px 0 0; font-size: 17px; font-weight: 500; }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0; padding-top: 14px; border-top: 1px solid var(--line); }
+  .stats div { min-width: 0; }
+  .stats dt { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+  .stats dd { margin: 2px 0 0; font-size: 20px; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .stats dd.sub { margin: 0; font-size: 13px; font-weight: 400; color: var(--ink-2); }
+  .detail { margin: 0; font-size: 14px; color: var(--ink-2); }
+  .night { margin: 0; font-size: 14px; color: var(--ink-2); padding-top: 12px; border-top: 1px solid var(--line); }
+  .night b { color: var(--ink); font-weight: 600; }
+  .pending { margin: 0; font-size: 14px; color: var(--ink-2); }
+  .pending-h { margin: 0; font-size: 17px; font-weight: 500; }
+
+  /* Hourly rain timelines */
+  .timelines { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .tl { display: grid; gap: 14px; align-content: start; }
+  .verdict-h { margin: 0; font: 600 22px/1.2 var(--display); letter-spacing: -0.01em; }
+  .verdict-sub { margin: 4px 0 0; font-size: 14px; color: var(--ink-2); }
+
+  .chart { display: grid; grid-template-columns: 34px minmax(0, 1fr); padding-top: 8px; }
+  .yaxis { position: relative; height: 140px; }
+  .yaxis span {
+    position: absolute;
+    right: 6px;
+    transform: translateY(50%);
+    font-size: 11px;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .plot { position: relative; height: 140px; }
+  .gl { position: absolute; left: 0; right: 0; height: 0; border-top: 1px solid var(--line); }
+  .gl.thresh { border-top: 1px dashed var(--ink-3); opacity: 0.7; }
+  .bars {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(24, minmax(0, 1fr));
+    gap: 2px;
+  }
+  .col {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    border-radius: 4px 4px 0 0;
+    cursor: pointer;
+    outline: none;
+    touch-action: manipulation;
+  }
+  .col i {
+    display: block;
+    width: 100%;
+    min-height: 2px;
+    background: var(--rain-soft);
+    border-radius: 3px 3px 0 0;
+  }
+  .col.wet i { background: var(--rain); }
+  .col.missing i { height: 2px !important; background: var(--line); }
+  .col:hover, .col.active, .col:focus-visible { background: var(--hover); }
+  .col:focus-visible { box-shadow: 0 0 0 2px var(--rain); }
+  .col.clear-start::before {
+    content: "";
+    position: absolute;
+    left: -2px;
+    top: -8px;
+    bottom: 0;
+    border-left: 2px dotted var(--accent);
+  }
+  .xaxis {
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    margin: 6px 0 0 34px;
+    font-size: 11px;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .key { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--ink-2); }
+  .key span { display: inline-flex; align-items: center; gap: 6px; }
+  .sw { width: 10px; height: 10px; border-radius: 2px; background: var(--rain); }
+  .sw.soft { background: var(--rain-soft); }
+  .sw.clear { width: 0; height: 12px; border-radius: 0; border-left: 2px dotted var(--accent); background: none; }
+
+  details { border-top: 1px solid var(--line); padding-top: 10px; }
+  summary { cursor: pointer; font-size: 14px; font-weight: 500; color: var(--ink-2); min-height: 32px; display: flex; align-items: center; }
+  summary:focus-visible { outline: 2px solid var(--rain); outline-offset: 2px; border-radius: 4px; }
+  .hours { list-style: none; margin: 8px 0 0; padding: 0; font-size: 14px; font-variant-numeric: tabular-nums; }
+  .hours li {
+    display: grid;
+    grid-template-columns: 4.5em 3.2em 2.8em minmax(0, 1fr);
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .hours li:last-child { border-bottom: 0; }
+  .hours .t { color: var(--ink-2); }
+  .hours .s { color: var(--ink-2); overflow-wrap: anywhere; }
+
+  .tip {
+    position: fixed;
+    z-index: 20;
+    max-width: 240px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: var(--ink);
+    color: var(--bg);
+    font-size: 13px;
+    line-height: 1.35;
+    pointer-events: none;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+  }
+  .tip b { font-weight: 600; }
+
+  footer { font-size: 12px; color: var(--ink-3); }
+  footer a { color: inherit; }
+
+  @media (max-width: 760px) {
+    .days, .timelines { grid-template-columns: minmax(0, 1fr); }
+    .day { grid-template-columns: minmax(0, 1fr); }
+    .hi { font-size: 46px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .spin { animation: none; border-right-color: currentColor; opacity: 0.6; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">Wedding Weather Control Station — Park Slope, Brooklyn</p>
+    <h1 id="title">Thursday–Saturday, November 5–7</h1>
+    <div class="controls">
+      <button id="refresh" class="btn" type="button">
+        <span class="spin" aria-hidden="true"></span>
+        <span id="refresh-label">Refresh Data</span>
+      </button>
+      <p class="stamp" id="stamp" aria-live="polite">Loading the latest forecast…</p>
+    </div>
+  </header>
+
+  <div id="notice" class="notice" role="status" hidden></div>
+
+  <section aria-labelledby="days-h">
+    <h2 id="days-h" class="section-h">Day by day</h2>
+    <div class="days" id="days"></div>
+  </section>
+
+  <section aria-labelledby="tl-h">
+    <h2 id="tl-h" class="section-h">Hourly Rain Timeline</h2>
+    <p class="section-sub">Chance of rain for each hour, midnight to midnight. Tap or hover a bar for details. The dashed line is 20%, where the NWS starts calling it a “slight chance.”</p>
+    <div class="timelines" id="timelines"></div>
+  </section>
+
+  <footer id="footer">Forecast from the National Weather Service (api.weather.gov) for 40.665° N, 73.971° W.</footer>
+</div>
+<div id="tip" class="tip" role="tooltip" hidden></div>
+
+<script>
+(() => {
+  'use strict';
+
+  const POINT = { lat: 40.665, lon: -73.971 };
+  const WEDDING_DAYS = ['2026-11-05', '2026-11-06', '2026-11-07'];
+  const THRESHOLD = 20;           // NWS starts saying "slight chance" at 20%
+  const TZ = 'America/New_York';
+  const CACHE_KEY = 'wedding-weather:v1';
+  const STALE_MS = 15 * 60 * 1000;
+
+  // ?days=YYYY-MM-DD,YYYY-MM-DD,YYYY-MM-DD previews the layout with dates already in the forecast.
+  const override = (new URLSearchParams(location.search).get('days') || '')
+    .split(',').filter(s => /^\d{4}-\d{2}-\d{2}$/.test(s));
+  const PREVIEW = override.length === 3;
+  const DAYS = PREVIEW ? override : WEDDING_DAYS;
+  const TIMELINE_DAYS = DAYS.slice(1);
+
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  // ---- dates ----
+  const ymd = s => { const [y, m, d] = s.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d, 12)); };
+  const fmtDate = (s, opts) => new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', ...opts }).format(ymd(s));
+  const addDays = (s, n) => { const d = ymd(s); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+  const todayNY = () => new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+  const hourLabel = h => `${h % 12 || 12} ${h < 12 ? 'AM' : 'PM'}`;
+  const fmtStamp = iso => new Intl.DateTimeFormat('en-US', {
+    timeZone: TZ, weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short'
+  }).format(new Date(iso));
+  const fmtTime = iso => new Intl.DateTimeFormat('en-US', { timeZone: TZ, hour: 'numeric', minute: '2-digit' }).format(new Date(iso));
+  const weekday = s => fmtDate(s, { weekday: 'long' });
+  const shortDate = s => fmtDate(s, { month: 'short', day: 'numeric' });
+
+  // ---- formatting ----
+  const windRange = w => String(w || '').replace(/(\d+)\s+to\s+(\d+)/, '$1–$2');
+  const pct = v => `${Math.round(v ?? 0)}%`;
+
+  // ---- storage (per-device convenience only) ----
+  const cache = {
+    read() { try { return JSON.parse(localStorage.getItem(CACHE_KEY) || 'null'); } catch { return null; } },
+    write(v) { try { localStorage.setItem(CACHE_KEY, JSON.stringify(v)); } catch { /* private mode etc. */ } }
+  };
+
+  // ---- NWS ----
+  class FetchError extends Error {
+    constructor(kind, status) { super(kind); this.kind = kind; this.status = status; }
+  }
+
+  async function getJSON(url, tries = 3) {
+    let last;
+    for (let i = 0; i < tries; i++) {
+      if (i) await new Promise(r => setTimeout(r, 800 * i));
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 15000);
+      try {
+        const res = await fetch(url, { headers: { Accept: 'application/geo+json' }, cache: 'no-store', signal: ctrl.signal });
+        if (!res.ok) {
+          last = new FetchError('http', res.status);
+          if (res.status < 500 && res.status !== 429) break;
+          continue;
+        }
+        return await res.json();
+      } catch (e) {
+        last = e instanceof FetchError ? e : new FetchError(e && e.name === 'AbortError' ? 'timeout' : 'network');
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+    throw last;
+  }
+
+  const slimDaily = p => ({
+    date: p.startTime.slice(0, 10),
+    isDaytime: p.isDaytime,
+    temp: p.temperature,
+    pop: p.probabilityOfPrecipitation?.value ?? 0,
+    wind: p.windSpeed,
+    dir: p.windDirection,
+    sky: p.shortForecast,
+    detail: p.detailedForecast
+  });
+
+  const slimHourly = p => ({
+    date: p.startTime.slice(0, 10),
+    hour: Number(p.startTime.slice(11, 13)),
+    temp: p.temperature,
+    pop: p.probabilityOfPrecipitation?.value ?? 0,
+    wind: p.windSpeed,
+    dir: p.windDirection,
+    sky: p.shortForecast
+  });
+
+  async function loadFromNWS() {
+    const points = await getJSON(`https://api.weather.gov/points/${POINT.lat},${POINT.lon}`);
+    const pp = points?.properties;
+    if (!pp?.forecast || !pp?.forecastHourly) throw new FetchError('empty');
+
+    const [daily, hourly] = await Promise.all([getJSON(pp.forecast), getJSON(pp.forecastHourly)]);
+    const dp = daily?.properties?.periods || [];
+    const hp = hourly?.properties?.periods || [];
+    if (!dp.length || !hp.length) throw new FetchError('empty');
+
+    return {
+      fetchedAt: new Date().toISOString(),
+      grid: { office: pp.gridId, x: pp.gridX, y: pp.gridY },
+      issued: daily.properties.updateTime || daily.properties.generatedAt || null,
+      dailyEnd: dp[dp.length - 1].startTime.slice(0, 10),
+      hourlyEnd: hp[hp.length - 1].startTime,
+      daily: dp.filter(p => DAYS.includes(p.startTime.slice(0, 10))).map(slimDaily),
+      hourly: hp.filter(p => TIMELINE_DAYS.includes(p.startTime.slice(0, 10))).map(slimHourly)
+    };
+  }
+
+  function friendlyError(e) {
+    if (navigator.onLine === false) return 'Your device looks offline. Reconnect, then tap Refresh Data.';
+    if (e?.kind === 'timeout') return 'The National Weather Service is responding slowly right now. Tap Refresh Data again in a minute.';
+    if (e?.kind === 'http' && (e.status >= 500 || e.status === 429)) return 'The National Weather Service forecast server is temporarily unavailable. This happens now and then; try again in a few minutes.';
+    if (e?.kind === 'http') return `The National Weather Service returned an unexpected response (error ${e.status}). Try again later.`;
+    if (e?.kind === 'empty') return 'The forecast came back incomplete. Tap Refresh Data to try again.';
+    return 'Couldn’t reach the National Weather Service. Check your connection and tap Refresh Data.';
+  }
+
+  // ---- "when will it show up" ----
+  function pendingWhen(key) {
+    // The 7-day forecast and the ~156-hour hourly forecast both reach a date about six days ahead.
+    const expected = addDays(key, -6);
+    return expected > todayNY()
+      ? `should appear around ${fmtDate(expected, { weekday: 'long', month: 'short', day: 'numeric' })}`
+      : 'should appear with the next NWS update';
+  }
+
+  // ---- render: header ----
+  function renderTitle() {
+    const [a, , c] = DAYS;
+    const sameMonth = a.slice(0, 7) === c.slice(0, 7);
+    const span = sameMonth
+      ? `${fmtDate(a, { month: 'long' })} ${Number(a.slice(8))}–${Number(c.slice(8))}`
+      : `${shortDate(a)} – ${shortDate(c)}`;
+    $('title').textContent = `${weekday(a)}–${weekday(c)}, ${span}`;
+  }
+
+  // ---- render: day cards ----
+  function dayCard(key, data) {
+    const head = `<div class="card-head"><h3>${weekday(key)}</h3><span class="date">${shortDate(key)}</span></div>`;
+    const periods = data ? data.daily.filter(p => p.date === key) : [];
+    const day = periods.find(p => p.isDaytime);
+    const night = periods.find(p => !p.isDaytime);
+
+    if (!day && !night) {
+      const body = data
+        ? `<p class="pending-h">Not in the forecast yet</p>
+           <p class="pending">The NWS 7-day forecast currently runs through ${esc(fmtDate(data.dailyEnd, { weekday: 'short', month: 'short', day: 'numeric' }))}. ${weekday(key)} ${pendingWhen(key)}.</p>`
+        : `<p class="pending">Waiting for the forecast…</p>`;
+      return `<article class="card day">${head}${body}</article>`;
+    }
+
+    const main = day || night;
+    const hi = day ? `${day.temp}°` : '—';
+    const lo = night ? `Low ${night.temp}°` : '';
+    const rainSub = day && night ? `<dd class="sub">Night ${pct(night.pop)}</dd>` : '';
+    const dir = main.dir ? `<dd class="sub">from ${esc(main.dir)}</dd>` : '';
+    const nightLine = day && night
+      ? `<p class="night"><b>Night</b> ${esc(night.sky)}, low ${night.temp}°, wind ${esc(windRange(night.wind))}</p>`
+      : '';
+
+    return `<article class="card day">
+      ${head}
+      <div class="temp"><span class="hi">${hi}</span><span class="lo">${lo}</span></div>
+      <p class="cond">${esc(main.sky)}</p>
+      <dl class="stats">
+        <div><dt>Rain chance</dt><dd>${pct(main.pop)}</dd>${rainSub}</div>
+        <div><dt>Wind</dt><dd>${esc(windRange(main.wind))}</dd>${dir}</div>
+      </dl>
+      ${main.detail ? `<p class="detail">${esc(main.detail)}</p>` : ''}
+      ${nightLine}
+    </article>`;
+  }
+
+  // ---- render: hourly timelines ----
+  function hoursFor(key, data) {
+    const hours = new Array(24).fill(null);
+    if (data) for (const h of data.hourly) if (h.date === key && !hours[h.hour]) hours[h.hour] = h;
+    return hours;
+  }
+
+  function verdict(hours) {
+    const have = hours.map((h, i) => (h ? i : -1)).filter(i => i >= 0);
+    if (!have.length) return null;
+    const pop = i => hours[i].pop;
+    const last = have[have.length - 1];
+    const partial = have.length < 24;
+    const peakI = have.reduce((a, b) => (pop(b) > pop(a) ? b : a));
+    const peak = pop(peakI) > 0 ? ` Peak ${pct(pop(peakI))} at ${hourLabel(peakI)}.` : '';
+    const endsNote = partial ? ` Hourly data currently ends at ${hourLabel(last)}.` : '';
+    const wet = have.filter(i => pop(i) >= THRESHOLD);
+
+    if (!wet.length) {
+      return { head: partial ? 'Dry so far' : 'Dry all day', sub: `Rain chance stays under ${THRESHOLD}% every hour.${peak}${endsNote}` };
+    }
+    const firstWet = wet[0];
+    const lastWet = wet[wet.length - 1];
+    if (lastWet === last) {
+      return partial
+        ? { head: `Still ${pct(pop(last))} at ${hourLabel(last)}`, sub: `The hourly forecast ends before the rain chance drops below ${THRESHOLD}%.${peak}` }
+        : { head: `Still ${pct(pop(23))} at 11 PM`, sub: `Rain chance doesn’t drop below ${THRESHOLD}% before midnight.${peak}` };
+    }
+    const span = firstWet === lastWet ? `at ${hourLabel(firstWet)}` : `between ${hourLabel(firstWet)} and ${hourLabel(lastWet)}`;
+    return {
+      head: `Dry from ${hourLabel(lastWet + 1)}`,
+      sub: `Rain chance reaches ${THRESHOLD}% or more ${span}, then stays under ${THRESHOLD}%.${peak}${endsNote}`,
+      clearAt: lastWet + 1
+    };
+  }
+
+  function timelineCard(key, data) {
+    const head = `<div class="card-head"><h3>${weekday(key)}</h3><span class="date">${shortDate(key)}</span></div>`;
+    const hours = hoursFor(key, data);
+    const v = verdict(hours);
+
+    const verdictHtml = v
+      ? `<div><p class="verdict-h">${esc(v.head)}</p><p class="verdict-sub">${esc(v.sub)}</p></div>`
+      : data
+        ? `<div><p class="verdict-h">Hourly data not out yet</p><p class="verdict-sub">The NWS hourly forecast currently runs through ${esc(fmtStamp(data.hourlyEnd))}. ${weekday(key)}’s hours ${pendingWhen(key)}.</p></div>`
+        : `<div><p class="verdict-sub">Waiting for the forecast…</p></div>`;
+
+    const cols = hours.map((h, i) => {
+      if (!h) {
+        return `<div class="col missing" role="listitem" tabindex="0" data-day="${key}" data-h="${i}" aria-label="${hourLabel(i)}: no hourly data yet"><i></i></div>`;
+      }
+      const cls = ['col', h.pop >= THRESHOLD ? 'wet' : '', v && v.clearAt === i ? 'clear-start' : ''].filter(Boolean).join(' ');
+      const label = `${hourLabel(i)}: ${pct(h.pop)} chance of rain, ${h.temp}°F, ${h.sky}`;
+      return `<div class="${cls}" role="listitem" tabindex="0" data-day="${key}" data-h="${i}" aria-label="${esc(label)}"><i style="height:${Math.max(0, Math.min(100, h.pop))}%"></i></div>`;
+    }).join('');
+
+    const xLabels = ['12a', '3a', '6a', '9a', '12p', '3p', '6p', '9p'].map(t => `<span>${t}</span>`).join('');
+
+    const list = hours.filter(Boolean).map(h =>
+      `<li><span class="t">${hourLabel(h.hour)}</span><span>${pct(h.pop)}</span><span>${h.temp}°</span><span class="s">${esc(h.sky)}</span></li>`
+    ).join('');
+
+    return `<article class="card tl">
+      ${head}
+      ${verdictHtml}
+      <div>
+        <div class="chart">
+          <div class="yaxis" aria-hidden="true"><span style="bottom:100%">100%</span><span style="bottom:50%">50%</span><span style="bottom:0">0%</span></div>
+          <div class="plot">
+            <div class="gl" style="bottom:100%"></div>
+            <div class="gl" style="bottom:50%"></div>
+            <div class="gl" style="bottom:0"></div>
+            <div class="gl thresh" style="bottom:${THRESHOLD}%"></div>
+            <div class="bars" role="list" aria-label="${weekday(key)} hourly chance of rain">${cols}</div>
+          </div>
+        </div>
+        <div class="xaxis" aria-hidden="true">${xLabels}</div>
+      </div>
+      <div class="key">
+        <span><i class="sw"></i>${THRESHOLD}% or more</span>
+        <span><i class="sw soft"></i>Under ${THRESHOLD}%</span>
+        ${v && v.clearAt != null ? '<span><i class="sw clear"></i>Dries out</span>' : ''}
+      </div>
+      ${list ? `<details><summary>Hour by hour</summary><ul class="hours">${list}</ul></details>` : ''}
+    </article>`;
+  }
+
+  // ---- render: everything ----
+  let current = null;
+
+  function render(data) {
+    current = data;
+    $('days').innerHTML = DAYS.map(k => dayCard(k, data)).join('');
+    $('timelines').innerHTML = TIMELINE_DAYS.map(k => timelineCard(k, data)).join('');
+    if (data?.grid) {
+      $('footer').innerHTML = `Forecast from the <a href="https://forecast.weather.gov/MapClick.php?lat=${POINT.lat}&lon=${POINT.lon}" target="_blank" rel="noopener">National Weather Service</a>, ${esc(data.grid.office)} grid ${esc(data.grid.x)},${esc(data.grid.y)} (40.665° N, 73.971° W).`;
+    }
+    hideTip();
+  }
+
+  function setStamp(data, { saved = false } = {}) {
+    if (!data) { $('stamp').textContent = 'No forecast loaded yet'; return; }
+    const issued = data.issued ? ` · NWS forecast issued ${fmtTime(data.issued)}` : '';
+    $('stamp').textContent = `${saved ? 'Saved copy from' : 'Updated'} ${fmtStamp(data.fetchedAt)}${issued}`;
+  }
+
+  function showNotice(lines) {
+    const n = $('notice');
+    const list = lines.filter(Boolean);
+    n.hidden = !list.length;
+    n.innerHTML = list.map(l => `<p>${esc(l)}</p>`).join('');
+  }
+
+  const previewLine = PREVIEW
+    ? `Preview mode: showing ${DAYS.map(shortDate).join(', ')} instead of the wedding days. Remove “?days=…” from the address to switch back.`
+    : '';
+
+  // ---- refresh ----
+  let busy = false;
+
+  async function refresh() {
+    if (busy) return;
+    busy = true;
+    const btn = $('refresh');
+    btn.disabled = true;
+    btn.classList.add('loading');
+    btn.setAttribute('aria-busy', 'true');
+    $('refresh-label').textContent = 'Refreshing…';
+
+    try {
+      const data = await loadFromNWS();
+      if (!PREVIEW) cache.write(data);
+      render(data);
+      setStamp(data);
+      showNotice([previewLine]);
+    } catch (e) {
+      const fallback = current ? `Still showing the last good update from ${fmtStamp(current.fetchedAt)}.` : '';
+      showNotice([previewLine, friendlyError(e), fallback]);
+      if (current) setStamp(current, { saved: true });
+      else setStamp(null);
+    } finally {
+      busy = false;
+      btn.disabled = false;
+      btn.classList.remove('loading');
+      btn.removeAttribute('aria-busy');
+      $('refresh-label').textContent = 'Refresh Data';
+    }
+  }
+
+  // ---- tooltip ----
+  let activeCol = null;
+
+  function showTip(col) {
+    const h = current && hoursFor(col.dataset.day, current)[Number(col.dataset.h)];
+    const hour = hourLabel(Number(col.dataset.h));
+    const tip = $('tip');
+    tip.innerHTML = h
+      ? `<b>${hour} · ${pct(h.pop)} rain</b><br>${h.temp}°F · ${esc(h.sky)}<br>Wind ${esc(h.dir || '')} ${esc(h.wind)}`
+      : `<b>${hour}</b><br>No hourly data yet`;
+    tip.hidden = false;
+
+    if (activeCol && activeCol !== col) activeCol.classList.remove('active');
+    activeCol = col;
+    col.classList.add('active');
+
+    const r = col.getBoundingClientRect();
+    const t = tip.getBoundingClientRect();
+    const pad = 8;
+    let left = r.left + r.width / 2 - t.width / 2;
+    left = Math.max(pad, Math.min(left, window.innerWidth - t.width - pad));
+    let top = r.top - t.height - 8;
+    if (top < pad) top = r.bottom + 8;
+    tip.style.left = `${left}px`;
+    tip.style.top = `${top}px`;
+  }
+
+  function hideTip() {
+    $('tip').hidden = true;
+    if (activeCol) activeCol.classList.remove('active');
+    activeCol = null;
+  }
+
+  const tl = $('timelines');
+  tl.addEventListener('pointerover', e => {
+    const col = e.target.closest('.col');
+    if (col && e.pointerType === 'mouse') showTip(col);
+  });
+  tl.addEventListener('pointerout', e => {
+    if (e.pointerType !== 'mouse') return;
+    const col = e.target.closest('.col');
+    if (col && !col.contains(e.relatedTarget)) hideTip();
+  });
+  tl.addEventListener('click', e => {
+    const col = e.target.closest('.col');
+    if (!col) return;
+    if (activeCol === col && !$('tip').hidden && e.pointerType !== 'mouse') hideTip();
+    else showTip(col);
+  });
+  tl.addEventListener('focusin', e => { const col = e.target.closest('.col'); if (col) showTip(col); });
+  tl.addEventListener('focusout', e => { if (e.target.closest('.col')) hideTip(); });
+  document.addEventListener('click', e => { if (!e.target.closest('.col')) hideTip(); });
+  window.addEventListener('scroll', hideTip, { passive: true });
+  window.addEventListener('resize', hideTip);
+
+  // ---- boot ----
+  renderTitle();
+  $('refresh').addEventListener('click', refresh);
+
+  const saved = PREVIEW ? null : cache.read();
+  if (saved && Array.isArray(saved.daily) && Array.isArray(saved.hourly)) {
+    render(saved);
+    setStamp(saved, { saved: true });
+  } else {
+    render(null);
+  }
+  showNotice([previewLine]);
+  refresh();
+
+  // Phones keep tabs alive for days; pull fresh data when the page comes back after a while.
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible' || !current) return;
+    if (Date.now() - new Date(current.fetchedAt).getTime() > STALE_MS) refresh();
+  });
+})();
+</script>
+</body>
+</html>
