@@ -173,6 +173,31 @@
   .pending { margin: 0; font-size: 14px; color: var(--ink-2); }
   .pending-h { margin: 0; font-size: 17px; font-weight: 500; }
 
+  /* Early model read (days the NWS forecast doesn't reach yet) */
+  .early-tag {
+    justify-self: start;
+    margin: 0;
+    padding: 2px 9px;
+    border: 1px solid var(--note-line);
+    border-radius: 999px;
+    background: var(--note-bg);
+    color: var(--note-ink);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .early-h { margin: 0; font: 600 24px/1.2 var(--display); letter-spacing: -0.01em; }
+  .early-sub { margin: -8px 0 0; font-size: 15px; color: var(--ink-2); }
+  .runs { display: grid; gap: 12px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .run { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; }
+  .run-name { grid-column: 1 / -1; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-3); }
+  .run-bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+  .run-bar i { display: block; height: 100%; border-radius: 3px; background: var(--rain); }
+  .run-n { font-size: 13px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .early-note { margin: 0; font-size: 13px; color: var(--ink-3); max-width: 72ch; }
+  .early-note a { color: inherit; }
+
   /* Hourly rain timelines */
   .timelines { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
   .tl { display: grid; gap: 14px; align-content: start; }
@@ -303,6 +328,7 @@
   <section aria-labelledby="days-h">
     <h2 id="days-h" class="section-h">Day by day</h2>
     <div class="days" id="days"></div>
+    <p class="early-note" id="early-note" hidden>Early model reads come from the US (GFS) and European (ECMWF) ensemble forecasts via Open-Meteo, not from the National Weather Service. Each model is run dozens of times with small tweaks, and the bars show how many of those runs produce at least 0.04 inches of rain during the day. More than a week out, storm timing still shifts from run to run, so expect these to move until the official forecast takes over. NWS forecasters explain how they read the models in their <a href="https://forecast.weather.gov/product.php?site=OKX&amp;issuedby=OKX&amp;product=AFD" target="_blank" rel="noopener">forecast discussion</a>.</p>
   </section>
 
   <section aria-labelledby="tl-h">
@@ -325,6 +351,11 @@
   const TZ = 'America/New_York';
   const CACHE_KEY = 'wedding-weather:v1';
   const STALE_MS = 15 * 60 * 1000;
+  const WET_INCHES = 0.04;        // a day counts as rainy in a model run at 0.04" or more
+  const ENSEMBLES = [
+    { name: 'US model (GFS)', match: 'gefs' },
+    { name: 'European model (ECMWF)', match: 'ecmwf' }
+  ];
 
   // ?days=YYYY-MM-DD,YYYY-MM-DD,YYYY-MM-DD previews the layout with dates already in the forecast.
   const override = (new URLSearchParams(location.search).get('days') || '')
@@ -364,14 +395,14 @@
     constructor(kind, status) { super(kind); this.kind = kind; this.status = status; }
   }
 
-  async function getJSON(url, tries = 3) {
+  async function getJSON(url, { tries = 3, accept = 'application/geo+json' } = {}) {
     let last;
     for (let i = 0; i < tries; i++) {
       if (i) await new Promise(r => setTimeout(r, 800 * i));
       const ctrl = new AbortController();
       const timer = setTimeout(() => ctrl.abort(), 15000);
       try {
-        const res = await fetch(url, { headers: { Accept: 'application/geo+json' }, cache: 'no-store', signal: ctrl.signal });
+        const res = await fetch(url, { headers: { Accept: accept }, cache: 'no-store', signal: ctrl.signal });
         if (!res.ok) {
           last = new FetchError('http', res.status);
           if (res.status < 500 && res.status !== 429) break;
@@ -429,6 +460,40 @@
     };
   }
 
+  // Ensemble share of rainy runs per day, for days the NWS forecast doesn't reach yet.
+  async function loadModels(keys) {
+    const start = keys[0] > todayNY() ? keys[0] : todayNY();
+    const end = keys[keys.length - 1];
+    if (start > end) return null;
+    const q = new URLSearchParams({
+      latitude: POINT.lat, longitude: POINT.lon, hourly: 'precipitation',
+      models: 'gfs_seamless,ecmwf_ifs025', precipitation_unit: 'inch', timezone: TZ,
+      start_date: start, end_date: end
+    });
+    const res = await getJSON(`https://ensemble-api.open-meteo.com/v1/ensemble?${q}`, { tries: 2, accept: 'application/json' });
+    const h = res?.hourly;
+    if (!Array.isArray(h?.time)) throw new FetchError('empty');
+
+    const days = {};
+    for (const key of keys) {
+      const idx = h.time.map((t, i) => (t.startsWith(key) ? i : -1)).filter(i => i >= 0);
+      if (!idx.length) continue;
+      const runs = ENSEMBLES.map(m => {
+        let wet = 0, total = 0;
+        for (const k of Object.keys(h)) {
+          if (!k.startsWith('precipitation') || !k.includes(m.match)) continue;
+          const vals = idx.map(i => h[k][i]).filter(v => v != null);
+          if (vals.length < idx.length * 0.75) continue;
+          total++;
+          if (vals.reduce((a, b) => a + b, 0) >= WET_INCHES) wet++;
+        }
+        return { name: m.name, wet, total };
+      }).filter(r => r.total);
+      if (runs.length) days[key] = runs;
+    }
+    return { days };
+  }
+
   function friendlyError(e) {
     if (navigator.onLine === false) return 'Your device looks offline. Reconnect, then tap Refresh Data.';
     if (e?.kind === 'timeout') return 'The National Weather Service is responding slowly right now. Tap Refresh Data again in a minute.';
@@ -465,6 +530,8 @@
     const night = periods.find(p => !p.isDaytime);
 
     if (!day && !night) {
+      const runs = data?.models?.days?.[key];
+      if (runs) return `<article class="card day">${head}${earlyRead(key, runs)}</article>`;
       const body = data
         ? `<p class="pending-h">Not in the forecast yet</p>
            <p class="pending">The NWS 7-day forecast currently runs through ${esc(fmtDate(data.dailyEnd, { weekday: 'short', month: 'short', day: 'numeric' }))}. ${weekday(key)} ${pendingWhen(key)}.</p>`
@@ -492,6 +559,24 @@
       ${main.detail ? `<p class="detail">${esc(main.detail)}</p>` : ''}
       ${nightLine}
     </article>`;
+  }
+
+  function earlyRead(key, runs) {
+    // Each model counts equally, whatever its number of runs.
+    const p = runs.reduce((a, r) => a + r.wet / r.total, 0) / runs.length * 100;
+    const head = p < 35 ? 'Leaning dry' : p <= 65 ? 'Could go either way' : 'Leaning wet';
+    const tens = Math.round(p / 10);
+    const share = tens === 0 ? 'Fewer than 1 in 10' : tens === 10 ? 'Nearly all' : `About ${tens} in 10`;
+    const rows = runs.map(r => `<div class="run">
+        <span class="run-name">${esc(r.name)}</span>
+        <span class="run-bar" aria-hidden="true"><i style="width:${(r.wet / r.total) * 100}%"></i></span>
+        <span class="run-n">${r.wet} of ${r.total} runs</span>
+      </div>`).join('');
+    return `<p class="early-tag">Early model read</p>
+      <p class="early-h">${head}</p>
+      <p class="early-sub">${share} model runs show rain that day.</p>
+      <div class="runs">${rows}</div>
+      <p class="pending">The official NWS forecast for ${weekday(key)} ${pendingWhen(key)}.</p>`;
   }
 
   // ---- render: hourly timelines ----
@@ -587,6 +672,7 @@
   function render(data) {
     current = data;
     $('days').innerHTML = DAYS.map(k => dayCard(k, data)).join('');
+    $('early-note').hidden = !document.querySelector('.early-tag');
     $('timelines').innerHTML = TIMELINE_DAYS.map(k => timelineCard(k, data)).join('');
     if (data?.grid) {
       $('footer').innerHTML = `Forecast from the <a href="https://forecast.weather.gov/MapClick.php?lat=${POINT.lat}&lon=${POINT.lon}" target="_blank" rel="noopener">National Weather Service</a>, ${esc(data.grid.office)} grid ${esc(data.grid.x)},${esc(data.grid.y)} (40.665° N, 73.971° W).`;
@@ -625,6 +711,9 @@
 
     try {
       const data = await loadFromNWS();
+      // Model data is a bonus: if it fails, those days just show when the official forecast arrives.
+      const uncovered = DAYS.filter(k => !data.daily.some(p => p.date === k));
+      data.models = uncovered.length ? await loadModels(uncovered).catch(() => null) : null;
       if (!PREVIEW) cache.write(data);
       render(data);
       setStamp(data);
