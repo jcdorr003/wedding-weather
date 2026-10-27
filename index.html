@@ -13,8 +13,22 @@
 <meta name="format-detection" content="telephone=no">
 <title>Wedding Weekend Weather</title>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-light.png" media="(prefers-color-scheme: light)">
+<link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-dark.png" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" id="touch-icon">
+<script>
+  // iOS can't switch a Home Screen icon with dark mode, so offer the dark one if the phone is dark when it's added.
+  (() => {
+    try {
+      const dark = matchMedia('(prefers-color-scheme: dark)');
+      const pick = () => {
+        document.getElementById('touch-icon').href = dark.matches ? 'icons/apple-touch-icon-dark.png' : 'icons/apple-touch-icon.png';
+      };
+      pick();
+      dark.addEventListener('change', pick);
+    } catch { /* keep the light icon */ }
+  })();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600&family=Work+Sans:wght@400;500;600&display=swap">
