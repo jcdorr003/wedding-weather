@@ -8,6 +8,36 @@ Windows/WSL → owner's Mac (Oct 27) → back to the Windows PC (Oct 28). Read `
 - **This branch (`audit-fixes`) is tested but NOT approved for deploy yet.** The owner was given the mock page
   to try and has not said yes. Do not merge until they do.
 
+## Next: React migration (requested Oct 28, ~1 AM EDT)
+
+The owner wants to move the app to a modern React stack: a showcase app they can keep building on or
+repurpose after the wedding. The next session researches the stack online first and builds it after the
+owner signs off. Earlier advice was to wait until after the wedding; the owner chose to start now.
+Constraints that aren't obvious from the code:
+
+- **The live page must keep working through Sun Nov 8.** The owner's fiancée has it on her iPhone Home Screen.
+  Build on a new branch (from `audit-fixes`, which has the latest tested logic). The current `index.html` stays
+  live until the React version matches it on every mock scenario and the audit, and the owner says yes.
+- **Hosting today:** GitHub Pages, "deploy from a branch" (`main`, `/`, `build_type: legacy`), served under
+  `/wedding-weather/`. A build step means changing how Pages deploys (e.g. Actions), or moving hosts.
+  **Changing the Pages source or adding a host is the owner's call, and switching the Pages source to Actions
+  stops `main`'s `index.html` being served.** Do it only at cutover, with a yes.
+- **The Home Screen install must survive cutover:** same URL, manifest `id: "/wedding-weather/"`, `scope`/
+  `start_url` `./`, the icons in `icons/` (light/dark `apple-touch-icon`, favicons, maskable 512).
+  Check installability again after cutover (see "Before merging" below).
+- **Repo is public on a GitHub account shared with the owner's employer.** No secrets, tokens or API keys in the
+  repo or the client bundle. Every current data source is keyless and allows browser CORS. If the stack needs a
+  server or secrets, propose it; don't just add it.
+- **Behaviour to preserve is spread over `index.html` (~1,000 lines), `CLAUDE.md` and the "What's on this branch"
+  list below.** Inventory the behaviour before writing code. The tricky parts are the NWS edge cases: the Overnight
+  period at 12–6 AM, past hours, the "issued" day label, NWS down/cache, and QPF blocks aligned to 06Z. Keep the
+  accuracy rules (NWS only in NWS range; model read is day-level odds only) and the calm colour rules.
+- **Testing tools to carry over:** the six mock scenarios in `dev/mock-data.js` (they fake `fetch` and the clock),
+  and `dev/audit/` (independent recomputation). They need equivalents in the new stack (e.g. request mocking +
+  fake timers). Keep the rule: no deploy without a local mock the owner can open, and an explicit yes.
+- **Undecided by the owner:** whether to deploy `audit-fixes` to the live vanilla page first (recommended: it fixes
+  real wedding-day bugs, and the React build may not be ready in time), and whether the app stays in this repo.
+
 ## Mac session, Oct 28 (just after midnight EDT)
 
 - Live site checked: it was byte-identical to `main`. The latest NWS forecast (issued 11:32 PM Oct 27) ran
