@@ -40,6 +40,17 @@ describe('useForecast', () => {
     expect(result.current.saved).toBe(true)
   })
 
+  it('ignores a saved copy in an older shape and replaces it with the live forecast', async () => {
+    const { data } = await loadScenario('wedding')
+    const { links: _, ...old } = data
+    localStorage.setItem(CACHE_KEY, JSON.stringify(old))
+    const now = enterScenario('wedding')
+    const { result } = render(now)
+    expect(result.current.data).toBeNull()
+    await waitFor(() => expect(result.current.data?.links).toBeDefined())
+    await waitFor(() => expect(JSON.parse(localStorage.getItem(CACHE_KEY) ?? '{}').links).toBeDefined())
+  })
+
   it('drops an extra that fails instead of showing a stale one', async () => {
     const now = enterScenario('wedding')
     server.use(http.get('https://api.weather.gov/mock/grid', () => new HttpResponse(null, { status: 500 })))

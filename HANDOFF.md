@@ -10,7 +10,9 @@ Read `CLAUDE.md` first (owner's rules), then `README.md` (commands). History liv
 - **Accuracy:** `pnpm verify:live` re-derives every number from the raw NWS and Open-Meteo APIs (Python, no shared
   code with the app) and compares it with what the page shows, including rain amounts. It last matched on Oct 28.
 - **Saved copy:** localStorage `wedding-weather:v1`. Its shape is `Forecast` in `src/lib/types.ts`; keep it stable
-  (phones that already have one rely on it when NWS is down).
+  (phones that already have one rely on it when NWS is down). `src/lib/data/cache.ts` validates the whole shape and
+  ignores a copy that doesn't match: an old copy without `links` crashed every open on one phone (Oct 28). Change
+  the schema there together with the type.
 - **Home Screen install:** manifest `id: "/wedding-weather/"`, `scope`/`start_url` `./`, icons in `public/icons/`.
   Keep all of them as they are.
 
@@ -30,6 +32,9 @@ Read `CLAUDE.md` first (owner's rules), then `README.md` (commands). History liv
   `data:` snapshots, which drops `?scenario=`.
 
 ## Next
+
+- Hosting move to the homelab: a proposal awaits the owner's approval (kept local and uncommitted while the repo is
+  public, since it describes the homelab). Nothing built. Then offline support on the new origin, then the repo goes private.
 
 - Service worker / offline support, after the wedding (Nov 8+). Not before, so a caching bug can't strand her phone
   on an old version.
