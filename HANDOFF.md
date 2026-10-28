@@ -14,6 +14,8 @@ Windows/WSL → owner's Mac (Oct 27) → back to the Windows PC (Oct 28). Read `
 - Oct 28 ~2:45 AM: on the owner's request, history on all branches was rewritten to drop `Co-Authored-By: Claude`
   trailers and to replace the work email on 3 Mac-session commits with jcdorr003@gmail.com (file contents and dates
   unchanged; commit IDs changed). Never add attribution again.
+- `react-migration` and `audit-fixes` were fully merged and deleted (local and GitHub). `main` is the only branch;
+  the owner doesn't want branches left around once they're merged.
 - Ask the owner whether the Home Screen icon on her iPhone still opens fine (it should: same URL and manifest id).
 
 ## React rebuild (Oct 28, ~1:30–2:30 AM EDT)

@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [react-migration, main]
+    branches: [main]
   pull_request:
 
 permissions:

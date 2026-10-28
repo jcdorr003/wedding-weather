@@ -4,7 +4,7 @@ The vanilla `index.html` (now `legacy/index.html`) was rebuilt as a React app th
 (more pages, bigger changes) after the wedding. Versions below were read from the npm registry on 2026-10-28;
 `pnpm-workspace.yaml` only installs releases at least 3 days old, so a few are one patch behind "latest".
 
-**Owner's calls (Oct 28):** same repo, branch `react-migration`; cut over as soon as it's ready (with a yes on the
+**Owner's calls (Oct 28):** same repo, branch `react-migration` (merged Oct 28 and deleted); cut over as soon as it's ready (with a yes on the
 day); lean "max edge" where it's stable and helps the app scale.
 
 ## The stack
@@ -32,7 +32,7 @@ day); lean "max edge" where it's stable and helps the app scale.
 
 ## Cutover (needs the owner's yes on the day)
 
-1. Merge `react-migration` into `main`.
+1. Merge the work branch into `main` (done Oct 28 for `react-migration`).
 2. Repo Settings → Pages → Source: **GitHub Actions**. From this moment `main`'s old `index.html` is no longer served.
 3. Run **Deploy to GitHub Pages** (Actions tab). The new site is live about a minute later at the same URL.
 4. Verify: live HTML, manifest `id`, icons, and Chrome installability (`Page.getInstallabilityErrors`; only `in-incognito`).
