@@ -1,4 +1,4 @@
-# Handoff — Oct 28, 2026
+# Handoff — Oct 28, 2026 (branch `react-migration`)
 
 Windows/WSL → owner's Mac (Oct 27) → back to the Windows PC (Oct 28). Read `CLAUDE.md` first.
 
@@ -7,37 +7,40 @@ Windows/WSL → owner's Mac (Oct 27) → back to the Windows PC (Oct 28). Read `
 - `main` = what's live. **Deployed Oct 28 ~1:40 AM EDT (`1528b63`): this branch's `index.html`** after the owner
   re-checked the mock and said yes. Verified: live HTML byte-identical, manifest/icons 200, Chrome installability
   only `in-incognito`.
-- React work continues on `react-migration` (branched from here). See its HANDOFF.md.
+- **This branch (`react-migration`) = the React rebuild.** Built, at parity, NOT deployed. Waiting for the owner to try
+  the local mock (`pnpm mock`) and say yes to cutover. Stack and reasons: `docs/stack.md`.
 
-## Next: React migration (requested Oct 28, ~1 AM EDT)
+## React rebuild (Oct 28, ~1:30–2:30 AM EDT)
 
-The owner wants to move the app to a modern React stack: a showcase app they can keep building on or
-repurpose after the wedding. The next session researches the stack online first and builds it after the
-owner signs off. Earlier advice was to wait until after the wedding; the owner chose to start now.
-Constraints that aren't obvious from the code:
+Owner's decisions: same repo; cut over "as soon as we are ready" (still needs a yes on the day); lean max edge.
+They answered "do whatever you recommend" to the stack, and said "lighten up" about process.
 
-- **The live page must keep working through Sun Nov 8.** The owner's fiancée has it on her iPhone Home Screen.
-  Build on a new branch (from `audit-fixes`, which has the latest tested logic). The current `index.html` stays
-  live until the React version matches it on every mock scenario and the audit, and the owner says yes.
-- **Hosting today:** GitHub Pages, "deploy from a branch" (`main`, `/`, `build_type: legacy`), served under
-  `/wedding-weather/`. A build step means changing how Pages deploys (e.g. Actions), or moving hosts.
-  **Changing the Pages source or adding a host is the owner's call, and switching the Pages source to Actions
-  stops `main`'s `index.html` being served.** Do it only at cutover, with a yes.
-- **The Home Screen install must survive cutover:** same URL, manifest `id: "/wedding-weather/"`, `scope`/
-  `start_url` `./`, the icons in `icons/` (light/dark `apple-touch-icon`, favicons, maskable 512).
-  Check installability again after cutover (see "Before merging" below).
-- **Repo is public on a GitHub account shared with the owner's employer.** No secrets, tokens or API keys in the
-  repo or the client bundle. Every current data source is keyless and allows browser CORS. If the stack needs a
-  server or secrets, propose it; don't just add it.
-- **Behaviour to preserve is spread over `index.html` (~1,000 lines), `CLAUDE.md` and the "What's on this branch"
-  list below.** Inventory the behaviour before writing code. The tricky parts are the NWS edge cases: the Overnight
-  period at 12–6 AM, past hours, the "issued" day label, NWS down/cache, and QPF blocks aligned to 06Z. Keep the
-  accuracy rules (NWS only in NWS range; model read is day-level odds only) and the calm colour rules.
-- **Testing tools to carry over:** the six mock scenarios in `dev/mock-data.js` (they fake `fetch` and the clock),
-  and `dev/audit/` (independent recomputation). They need equivalents in the new stack (e.g. request mocking +
-  fake timers). Keep the rule: no deploy without a local mock the owner can open, and an explicit yes.
-- **Undecided by the owner:** whether to deploy `audit-fixes` to the live vanilla page first (recommended: it fixes
-  real wedding-day bugs, and the React build may not be ready in time), and whether the app stays in this repo.
+Done:
+- TanStack Start 1.0 (prerendered static HTML, browser-side fetching, no server) + React 19.3 + Compiler + TS 7 +
+  Vite 8 + TanStack Query + Zod mini + Temporal (polyfill only where missing: iOS Safari). Details: `docs/stack.md`.
+- Logic ported 1:1 from `legacy/index.html` into pure modules (`src/lib/forecast.ts`, `src/lib/nws.ts`). Same
+  localStorage key and saved-copy format, so after cutover her phone's saved copy still loads.
+- Six mock scenarios → MSW handlers (`src/mocks/scenarios.ts`) + injected clock (`clock.pretend`), shared by Vitest,
+  Playwright and the mock build.
+- **Parity:** Playwright compares every number and label against the vanilla mock in all six scenarios at 375 and
+  1440 px. All 12 match. **Audit:** `expected.py` vs both the React build and the live page: MATCH on the wedding
+  days (model reads) and on Oct 29–31 (full cards and hourly data); React and live extracted identically.
+- Owner asked for no "popping in": prerendered skeletons built from the real card markup, plus an inline head script
+  that picks each card's shape from today's date. Self-hosted, preloaded fonts. The mock banner is fixed to the
+  bottom. CLS while loading ≤ 0.003 (vanilla 0.14–0.71). Exceptions: a real alert sliding in (0.087 on phone) and
+  NWS-down collapsing to short error cards.
+- CI (`.github/workflows/ci.yml`) runs everything on push. `deploy.yml` runs only when triggered by hand.
+- Repo layout: `index.html` → `legacy/index.html`, `icons/` + manifest → `public/`. `dev/build-mock.py` now reads
+  `legacy/index.html` (output byte-identical).
+
+Not done / next:
+- **Cutover** (owner's yes): see "Cutover" in `docs/stack.md`. Switching the Pages source to Actions stops the old
+  `index.html` being served; run the deploy workflow right after. Then check installability as below.
+- Service worker / offline: deliberately left out until after the wedding (see stack.md).
+- Inherited quirk kept for parity: `.alerts { display: grid }` overrides `hidden` (extra ~20 px when no alerts).
+
+Tooling notes: pnpm 12 was installed through Volta on this box (`volta install pnpm@12.15.0`). Playwright's
+Chromium is in `~/.cache/ms-playwright`. `pkill -f <pattern>` in a shared shell can kill the shell itself; avoid it.
 
 ## Mac session, Oct 28 (just after midnight EDT)
 
@@ -101,19 +104,20 @@ Deliberately removed after discussion: model "soaking rain" odds 9–11 days out
 
 ## Before merging to `main`
 
-1. Get the owner's explicit yes after they've tried `dev/wedding-weather-mock.html`.
-2. **Do not ship `dev/`, `CLAUDE.md` or `HANDOFF.md` to `main`** — Pages would publish them. Bring over only
-   `index.html`, e.g. `git checkout main && git checkout audit-fixes -- index.html`.
-3. After pushing, confirm the live page serves the new `index.html` and Chrome's installability check
+1. Get the owner's explicit yes after they've tried the mock (`pnpm mock`).
+2. While Pages still deploys from the branch, **`dev/`, `CLAUDE.md` and `HANDOFF.md` must not reach `main`**: Pages
+   would publish them. Once Pages deploys via Actions, only `dist/client` is published and the whole branch can merge.
+3. After deploying, confirm the live page serves the new `index.html` and Chrome's installability check
    still passes (`Page.getInstallabilityErrors` via CDP; only `in-incognito` is expected in a test browser).
 
 ## Testing notes
 
-- `python3 dev/build-mock.py` rebuilds the mock after any `index.html` change.
-- Audit: `python3 dev/audit/expected.py 2026-11-05,2026-11-06,2026-11-07 > exp.json`, load the page in a
-  headless browser to extract what it shows, then `python3 dev/audit/compare.py exp.json got.json <days>`.
-  The headless extraction script was machine-specific and isn't included; `?days=YYYY-MM-DD,…` on the page
-  previews any three dates already inside the NWS range.
+- React: `pnpm check` (types, lint, format, unit), `pnpm build:mock && pnpm test:e2e` (parity + layout shift;
+  screenshots of both pages land in `tests/e2e/out/`), `pnpm mock` for the owner.
+- Vanilla: `python3 dev/build-mock.py` rebuilds its mock after any `legacy/index.html` change (it's the parity reference).
+- Audit (any page): `python3 dev/audit/expected.py <days> > exp.json`, `node dev/audit/extract.mjs <url> > got.json`,
+  then `python3 dev/audit/compare.py exp.json got.json <days>`. For the React build: `pnpm build && pnpm serve`
+  → `http://localhost:4173/wedding-weather/`. `?days=YYYY-MM-DD,…` previews any three dates inside the NWS range.
 - Some previewers (e.g. the Claude desktop app's browser pane) load local HTML as a `data:` snapshot,
   which drops `?scenario=…`. To check one scenario there, make a temporary copy of the mock with the
   default changed (`params.get('scenario') : 'wedding'` → another key), and delete the copy afterwards.

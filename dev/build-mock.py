@@ -6,7 +6,7 @@ Then open dev/wedding-weather-mock.html in a browser and use the scenario button
 from pathlib import Path
 
 root = Path(__file__).resolve().parent.parent
-page = (root / 'index.html').read_text()
+page = (root / 'legacy' / 'index.html').read_text()
 mock = (root / 'dev' / 'mock-data.js').read_text()
 
 page = page.replace('<title>Wedding Weekend Weather</title>', '<title>MOCK · Wedding Weekend Weather</title>', 1)

@@ -1,0 +1,2 @@
+# Supply-chain guard: only install versions that have been public for at least 3 days.
+minimumReleaseAge: 4320

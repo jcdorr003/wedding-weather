@@ -1,0 +1,7 @@
+node_modules/
+dist/
+dist-mock/
+.tanstack/
+test-results/
+playwright-report/
+tests/e2e/out/

@@ -12,22 +12,25 @@ Live at https://jcdorr003.github.io/wedding-weather/ (GitHub Pages, served from 
   - Beyond the NWS range, the "early model read" is day-level odds only ("Leaning dry / Could go either way /
     Leaning wet") with a low-confidence line. **No model amounts, no timing, no soaking odds, no icons.**
 - **Calm framing.** No red for rain (rain is dusty blue); crimson is for titles only.
-- **Never deploy without a local mock first.** Before pushing anything to `main`, run `python3 dev/build-mock.py`,
-  hand the owner `dev/wedding-weather-mock.html` to open locally, and wait for an explicit yes.
-  Screenshots alone are not enough.
+- **Never deploy without a local mock first.** Before pushing anything to `main`, run `pnpm mock` and give the owner
+  `http://localhost:4173/wedding-weather/` to open locally (scenario switcher at the bottom), then wait for an
+  explicit yes. Screenshots alone are not enough. (Vanilla page: `python3 dev/build-mock.py` →
+  `dev/wedding-weather-mock.html`.)
 - Match the owner's wedding site (brittanyandjc.com): ivory `#fffaf5`, crimson `#9b1b22`, wine `#6d1d2d`,
   blush `#eed8ce`, Lora + Work Sans, hand-drawn line art.
 
-## Layout
+## Layout (branch `react-migration`; `main` still serves the vanilla page until cutover)
 
-- `index.html` — the whole app (inline CSS/JS, no build step).
-- `manifest.webmanifest`, `icons/` — installable app + light/dark icons.
-- `dev/` — local tooling, **not for `main`** (see HANDOFF.md):
-  - `mock-data.js` + `build-mock.py` → `wedding-weather-mock.html` with scenario buttons
-    (wedding week, today, halfway, NWS down, Sat 9:30 AM, Sat 2:30 AM). It replaces `fetch()` and, for some
-    scenarios, the clock, so the real page code runs against made-up data.
-  - `audit/` — independent recomputation from the raw APIs to check the page's numbers
-    (`expected.py`, `compare.py`, `parts.py`).
+- React app: TanStack Start (prerendered, no server) + React 19.3 + TS 7 + Vite 8. Why each piece: `docs/stack.md`.
+  - `src/routes/` pages (`__root.tsx` holds the head: manifest, icons, fonts, skeleton script) · `src/components/`
+  - `src/lib/nws.ts` fetch + Zod schemas + loaders · `src/lib/forecast.ts` everything the page shows (pure)
+  - `src/lib/useForecast.ts` TanStack Query wiring · `src/lib/time.ts` Temporal helpers and the one clock
+  - `src/mocks/` the six scenarios as MSW handlers (mock builds only) · `public/` manifest + icons
+- `legacy/index.html` — the vanilla page (what `main` serves today), kept as the parity reference.
+- `pnpm dev` · `pnpm mock` (mock build at localhost:4173) · `pnpm check` (types, lint, format, unit) · `pnpm test:e2e`
+  (needs `pnpm build:mock`: parity with the vanilla mock in every scenario, plus layout shift).
+- `dev/` — vanilla mock (`build-mock.py`, `mock-data.js`) and `audit/` (independent recomputation:
+  `expected.py`, `extract.mjs` reads any page, `compare.py`). See HANDOFF.md for the audit commands.
 
 ## Data sources
 
