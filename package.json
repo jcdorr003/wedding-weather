@@ -7,16 +7,17 @@
     "dev:mock": "vite dev --mode mock",
     "build": "vite build",
     "build:mock": "vite build --mode mock && rm -rf dist-mock && mv dist dist-mock",
-    "serve": "node scripts/serve.mjs dist/client",
     "serve:mock": "node scripts/serve.mjs dist-mock/client",
     "mock": "pnpm build:mock && pnpm serve:mock",
     "typecheck": "tsc --noEmit",
-    "lint": "oxlint --type-aware",
+    "lint": "oxlint --type-aware --deny-warnings",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test"
+    "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test",
+    "verify:live": "node scripts/audit/run.mjs",
+    "serve": "node scripts/serve.mjs dist/client"
   },
   "dependencies": {
     "@fontsource-variable/lora": "5.3.0",
