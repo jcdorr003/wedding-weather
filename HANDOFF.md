@@ -21,6 +21,10 @@ Read `CLAUDE.md` first (owner's rules), then `README.md` (commands). History liv
   `tests/e2e/__snapshots__/` (every number and label, plus card column counts), and layout shift while loading.
   After an intended change, review the diff and run `pnpm exec playwright test --update-snapshots`.
 - Mock scenarios (`src/mocks/scenarios.ts`) each pretend a fixed time, so snapshots never drift.
+- iOS has no native Temporal, and the polyfill can land after hydration on a cold Home Screen launch (that was the
+  intermittent "Something went wrong!"). Nothing rendered before `temporalReady` (the loading `Shell`) may touch
+  Temporal. `tests/e2e/safari.spec.ts` removes Temporal and delays the polyfill chunk to keep it that way. WebKit
+  itself can't run in this WSL (missing system libraries).
 - `build:mock` builds into `dist/` and then moves it to `dist-mock/`, so run the real `pnpm build` afterwards.
 - Gotchas: `pkill -f <pattern>` in a shared shell can kill the shell itself. Some preview panes load local pages as
   `data:` snapshots, which drops `?scenario=`.

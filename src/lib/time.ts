@@ -32,8 +32,14 @@ export const nyAt = (ms: number) => {
 }
 
 export const addDays = (s: string, n: number) => Temporal.PlainDate.from(s).add({ days: n }).toString()
-export const fmtDate = (s: string, opts: Intl.DateTimeFormatOptions) =>
-  Temporal.PlainDate.from(s).toLocaleString('en-US', opts)
+/**
+ * Formats a calendar date ("2026-11-05"). Plain Intl rather than Temporal on purpose: day names appear in the loading
+ * skeleton, which renders before Safari's Temporal polyfill has loaded.
+ */
+export const fmtDate = (s: string, opts: Intl.DateTimeFormatOptions) => {
+  const [y = 0, m = 1, d = 1] = s.split('-').map(Number)
+  return new Intl.DateTimeFormat('en-US', { ...opts, timeZone: 'UTC' }).format(Date.UTC(y, m - 1, d, 12))
+}
 export const weekday = (s: string) => fmtDate(s, { weekday: 'long' })
 export const shortDate = (s: string) => fmtDate(s, { month: 'short', day: 'numeric' })
 export const longDate = (s: string) => fmtDate(s, { weekday: 'long', month: 'short', day: 'numeric' })
