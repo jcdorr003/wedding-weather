@@ -1,7 +1,8 @@
 # Wedding Weekend Weather
 
 A single-page forecast for a wedding weekend in Park Slope / Prospect Park, Brooklyn, Thu–Sat Nov 5–7, 2026.
-Live at https://jcdorr003.github.io/wedding-weather/ (GitHub Pages, served from `main`, ~1 minute to deploy).
+Live at https://jcdorr003.github.io/wedding-weather/ (GitHub Pages via Actions: every push to `main` builds and deploys
+`dist/client`, ~1–2 minutes).
 
 ## Rules from the owner
 
@@ -19,14 +20,14 @@ Live at https://jcdorr003.github.io/wedding-weather/ (GitHub Pages, served from 
 - Match the owner's wedding site (brittanyandjc.com): ivory `#fffaf5`, crimson `#9b1b22`, wine `#6d1d2d`,
   blush `#eed8ce`, Lora + Work Sans, hand-drawn line art.
 
-## Layout (branch `react-migration`; `main` still serves the vanilla page until cutover)
+## Layout
 
 - React app: TanStack Start (prerendered, no server) + React 19.3 + TS 7 + Vite 8. Why each piece: `docs/stack.md`.
   - `src/routes/` pages (`__root.tsx` holds the head: manifest, icons, fonts, skeleton script) · `src/components/`
   - `src/lib/nws.ts` fetch + Zod schemas + loaders · `src/lib/forecast.ts` everything the page shows (pure)
   - `src/lib/useForecast.ts` TanStack Query wiring · `src/lib/time.ts` Temporal helpers and the one clock
   - `src/mocks/` the six scenarios as MSW handlers (mock builds only) · `public/` manifest + icons
-- `legacy/index.html` — the vanilla page (what `main` serves today), kept as the parity reference.
+- `legacy/index.html` — the vanilla page (live until Oct 28, 2026), kept as the parity reference.
 - `pnpm dev` · `pnpm mock` (mock build at localhost:4173) · `pnpm check` (types, lint, format, unit) · `pnpm test:e2e`
   (needs `pnpm build:mock`: parity with the vanilla mock in every scenario, plus layout shift).
 - `dev/` — vanilla mock (`build-mock.py`, `mock-data.js`) and `audit/` (independent recomputation:

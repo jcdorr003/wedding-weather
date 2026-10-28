@@ -1,4 +1,4 @@
-# Handoff — Oct 28, 2026 (branch `react-migration`)
+# Handoff — Oct 28, 2026
 
 Windows/WSL → owner's Mac (Oct 27) → back to the Windows PC (Oct 28). Read `CLAUDE.md` first.
 
@@ -7,8 +7,11 @@ Windows/WSL → owner's Mac (Oct 27) → back to the Windows PC (Oct 28). Read `
 - `main` = what's live. **Deployed Oct 28 ~1:40 AM EDT (`1528b63`): this branch's `index.html`** after the owner
   re-checked the mock and said yes. Verified: live HTML byte-identical, manifest/icons 200, Chrome installability
   only `in-incognito`.
-- **This branch (`react-migration`) = the React rebuild.** Built, at parity, NOT deployed. Waiting for the owner to try
-  the local mock (`pnpm mock`) and say yes to cutover. Stack and reasons: `docs/stack.md`.
+- **Cutover done Oct 28 ~2:35 AM EDT, on the owner's "Go for it".** The React rebuild (merge `4fbc021`) is live.
+  Pages source is now **GitHub Actions** (`deploy.yml`, every push to `main`). Verified live: React HTML served,
+  manifest `id`/`scope`/`start_url` unchanged, icons 200, `CLAUDE.md`/`HANDOFF.md`/`dev/` 404 (not published),
+  Chrome installability: no errors, audit MATCH (wedding days and Oct 29–31). Stack and reasons: `docs/stack.md`.
+- Ask the owner whether the Home Screen icon on her iPhone still opens fine (it should: same URL and manifest id).
 
 ## React rebuild (Oct 28, ~1:30–2:30 AM EDT)
 
@@ -34,8 +37,6 @@ Done:
   `legacy/index.html` (output byte-identical).
 
 Not done / next:
-- **Cutover** (owner's yes): see "Cutover" in `docs/stack.md`. Switching the Pages source to Actions stops the old
-  `index.html` being served; run the deploy workflow right after. Then check installability as below.
 - Service worker / offline: deliberately left out until after the wedding (see stack.md).
 - Inherited quirk kept for parity: `.alerts { display: grid }` overrides `hidden` (extra ~20 px when no alerts).
 
@@ -102,11 +103,10 @@ Layout:
 
 Deliberately removed after discussion: model "soaking rain" odds 9–11 days out (low skill, would add worry).
 
-## Before merging to `main`
+## Before pushing to `main` (a push deploys)
 
 1. Get the owner's explicit yes after they've tried the mock (`pnpm mock`).
-2. While Pages still deploys from the branch, **`dev/`, `CLAUDE.md` and `HANDOFF.md` must not reach `main`**: Pages
-   would publish them. Once Pages deploys via Actions, only `dist/client` is published and the whole branch can merge.
+2. Pages now publishes only `dist/client`, so source, `dev/` and these notes can live on `main` safely.
 3. After deploying, confirm the live page serves the new `index.html` and Chrome's installability check
    still passes (`Page.getInstallabilityErrors` via CDP; only `in-incognito` is expected in a test browser).
 

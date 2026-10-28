@@ -1,8 +1,10 @@
 name: Deploy to GitHub Pages
 
-# Manual only, for now. The site is still served by "Deploy from a branch" (main's index.html). This workflow does
-# nothing useful until the Pages source is switched to "GitHub Actions" at cutover, which is the owner's call.
+# Every push to main deploys (about a minute), as with the old "deploy from a branch" setup. Pages source:
+# GitHub Actions (switched at cutover, Oct 28, 2026). Can also be run by hand from the Actions tab.
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
