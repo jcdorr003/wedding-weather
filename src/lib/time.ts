@@ -1,6 +1,15 @@
+// Dates and times. All local-time math is America/New_York via Temporal; functions take `now` (epoch ms) explicitly
+// so they stay pure and the React Compiler can't cache a stale time.
 import { TZ } from './config'
 
-// The one place the app reads the time. Mock scenarios shift it; tests use vi.setSystemTime.
+// Safari (including iOS) has no native Temporal yet; load the polyfill only where it's missing.
+export const temporalReady: Promise<void> =
+  'Temporal' in globalThis ? Promise.resolve() : import('temporal-polyfill/global').then(() => undefined)
+
+// Prerendering on Node 24 needs it too (for day names in the loading skeleton); this branch never ships to browsers.
+if (import.meta.env.SSR) await temporalReady
+
+/** The one place the app reads the time. Mock scenarios shift it; tests use vi.setSystemTime. */
 let offsetMs = 0
 export const clock = {
   nowMs: () => Date.now() + offsetMs,
@@ -10,19 +19,13 @@ export const clock = {
   },
 }
 
-// Prerendering on Node 24 needs it too (for day names in the loading skeleton); this branch never ships to browsers.
-if (import.meta.env.SSR && !('Temporal' in globalThis)) await import('temporal-polyfill/global')
-
-// Safari (including iOS) has no native Temporal yet; load the polyfill only where it's missing.
-export const temporalReady: Promise<void> =
-  'Temporal' in globalThis ? Promise.resolve() : import('temporal-polyfill/global').then(() => undefined)
-
+export const MINUTE = 60e3
 export const HOUR = 3600e3
 
 const nyZoned = (ms: number) => Temporal.Instant.fromEpochMilliseconds(ms).toZonedDateTimeISO(TZ)
 
-export const todayNY = () => nyZoned(clock.nowMs()).toPlainDate().toString()
-export const nowHourNY = () => nyZoned(clock.nowMs()).hour
+export const todayNY = (now: number) => nyZoned(now).toPlainDate().toString()
+export const nowHourNY = (now: number) => nyZoned(now).hour
 export const nyAt = (ms: number) => {
   const z = nyZoned(ms)
   return { date: z.toPlainDate().toString(), hour: z.hour }
@@ -45,9 +48,10 @@ export const fmtStamp = (iso: string) =>
     minute: '2-digit',
     timeZoneName: 'short',
   })
-export const fmtIssued = (iso: string) => {
+/** "6:00 AM" if issued today, otherwise "Tue 6:00 AM". */
+export const fmtIssued = (iso: string, now: number) => {
   const z = zonedFromIso(iso)
-  return z.toPlainDate().toString() === todayNY()
+  return z.toPlainDate().toString() === todayNY(now)
     ? z.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit' })
     : z.toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit' })
 }
@@ -58,7 +62,7 @@ export const shortHour = (ms: number) => {
   return `${h % 12 || 12}${h < 12 ? 'a' : 'p'}`
 }
 
-// NWS grid durations look like "PT6H" or "P1DT2H".
+/** NWS grid durations look like "PT6H" or "P1DT2H". */
 export const durHours = (d: string | undefined) => {
   try {
     return Temporal.Duration.from(d ?? '').total({ unit: 'hours' })

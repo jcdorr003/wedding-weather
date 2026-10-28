@@ -12,6 +12,7 @@
     "dist-mock/**",
     "pnpm-lock.yaml",
     "**/*.md",
-    ".github/**"
+    ".github/**",
+    "tests/e2e/__snapshots__/**"
   ]
 }

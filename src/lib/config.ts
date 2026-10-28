@@ -12,10 +12,8 @@ export const ENSEMBLES = [
   { name: 'European model (ECMWF)', match: 'ecmwf' },
 ] as const
 
-// ?days=YYYY-MM-DD,YYYY-MM-DD,YYYY-MM-DD previews the layout with dates already in the forecast.
-export function daysFromSearch(search: string): { days: string[]; preview: boolean } {
-  const override = (new URLSearchParams(search).get('days') ?? '')
-    .split(',')
-    .filter((s) => /^\d{4}-\d{2}-\d{2}$/.test(s))
-  return override.length === 3 ? { days: override, preview: true } : { days: [...WEDDING_DAYS], preview: false }
+/** `?days=YYYY-MM-DD,YYYY-MM-DD,YYYY-MM-DD` previews the layout with three dates already in the forecast. */
+export const parseDays = (param: string | undefined): { days: readonly string[]; preview: boolean } => {
+  const override = (param ?? '').split(',').filter((s) => /^\d{4}-\d{2}-\d{2}$/.test(s))
+  return override.length === 3 ? { days: override, preview: true } : { days: WEDDING_DAYS, preview: false }
 }

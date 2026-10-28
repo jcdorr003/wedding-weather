@@ -1,7 +1,7 @@
-import type { DayCard as Card, FullDay } from '../lib/forecast'
+import type { DayCard as Card, FullDay } from '../lib/forecast/day'
 import type { SkeletonKind } from '../lib/skeleton'
 import { CardHead, DayBody } from './DayCard'
-import { Chart, ChartKey } from './Timelines'
+import { Chart, ChartKey } from './timeline/Chart'
 
 // Loading placeholders built from the real card markup with sample text, which CSS paints as bars. Same
 // elements, same line heights, so the cards keep their size when the forecast replaces them.
@@ -52,7 +52,7 @@ const SAMPLE: Record<SkeletonKind, Card> = {
  * `kinds` is one kind per day when it's known (in the browser). In the prerendered HTML it isn't, so every
  * variant is rendered and CSS keeps the one the inline <head> script picked (see lib/skeleton.ts).
  */
-export function DaySkeletons({ days, kinds }: { days: readonly string[]; kinds?: SkeletonKind[] }) {
+export const DaySkeletons = ({ days, kinds }: { days: readonly string[]; kinds?: SkeletonKind[] }) => {
   return days.map((k, i) => (
     <article key={k} className="card day skeleton" aria-hidden="true">
       <CardHead day={k} />
@@ -69,7 +69,7 @@ export function DaySkeletons({ days, kinds }: { days: readonly string[]; kinds?:
   ))
 }
 
-function TimelineBody({ day, kind }: { day: string; kind: SkeletonKind }) {
+const TimelineBody = ({ day, kind }: { day: string; kind: SkeletonKind }) => {
   if (kind === 'passed')
     return (
       <div>
@@ -96,23 +96,21 @@ function TimelineBody({ day, kind }: { day: string; kind: SkeletonKind }) {
 }
 
 /** Hourly cards for days[1..]; `kinds` lines up with `days`, as for DaySkeletons. */
-export function TimelineSkeletons({ days, kinds }: { days: readonly string[]; kinds?: SkeletonKind[] }) {
-  return (
-    <div className="timelines" id="timelines">
-      {days.slice(1).map((k, i) => (
-        <article key={k} className="card tl skeleton" aria-hidden="true">
-          <CardHead day={k} />
-          {kinds ? (
-            <TimelineBody day={k} kind={kinds[i + 1] ?? 'model'} />
-          ) : (
-            (['full', 'model', 'passed'] as const).map((v) => (
-              <div key={v} className={`sk-v sk-${v}`}>
-                <TimelineBody day={k} kind={v} />
-              </div>
-            ))
-          )}
-        </article>
-      ))}
-    </div>
-  )
-}
+export const TimelineSkeletons = ({ days, kinds }: { days: readonly string[]; kinds?: SkeletonKind[] }) => (
+  <div className="timelines" id="timelines">
+    {days.slice(1).map((k, i) => (
+      <article key={k} className="card tl skeleton" aria-hidden="true">
+        <CardHead day={k} />
+        {kinds ? (
+          <TimelineBody day={k} kind={kinds[i + 1] ?? 'model'} />
+        ) : (
+          (['full', 'model', 'passed'] as const).map((v) => (
+            <div key={v} className={`sk-v sk-${v}`}>
+              <TimelineBody day={k} kind={v} />
+            </div>
+          ))
+        )}
+      </article>
+    ))}
+  </div>
+)

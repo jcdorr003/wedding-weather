@@ -1,0 +1,65 @@
+{
+  "title": "Thursday–Saturday, November 5–7",
+  "stamp": "No forecast loaded yet",
+  "refresh": "Refresh Data",
+  "alerts": [],
+  "notice": [
+    "The National Weather Service forecast server is temporarily unavailable. This happens now and then; try again in a few minutes."
+  ],
+  "days": [
+    {
+      "text": "Thursday Nov 5 Couldn’t load the forecast. Tap Refresh Data to try again.",
+      "sections": [
+        "card-head",
+        "day-body"
+      ],
+      "runBars": [],
+      "parts": []
+    },
+    {
+      "text": "Friday Nov 6 Couldn’t load the forecast. Tap Refresh Data to try again.",
+      "sections": [
+        "card-head",
+        "day-body"
+      ],
+      "runBars": [],
+      "parts": []
+    },
+    {
+      "text": "Saturday Nov 7 Couldn’t load the forecast. Tap Refresh Data to try again.",
+      "sections": [
+        "card-head",
+        "day-body"
+      ],
+      "runBars": [],
+      "parts": []
+    }
+  ],
+  "earlyNote": false,
+  "timelines": [
+    {
+      "verdict": [
+        "Couldn’t load the forecast. Tap Refresh Data to try again."
+      ],
+      "cols": [],
+      "key": null,
+      "hours": []
+    },
+    {
+      "verdict": [
+        "Couldn’t load the forecast. Tap Refresh Data to try again."
+      ],
+      "cols": [],
+      "key": null,
+      "hours": []
+    }
+  ],
+  "radar": "https://radar.weather.gov/",
+  "footer": "Forecast from the National Weather Service (api.weather.gov) for 40.665° N, 73.971° W.",
+  "footerLink": null,
+  "overflow": 0,
+  "columns": {
+    "days": 1,
+    "timelines": 1
+  }
+}

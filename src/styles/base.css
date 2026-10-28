@@ -1,0 +1,45 @@
+/* Page basics and the one-column layout. */
+@layer base {
+  /* Layout: one centered column; three day cards side by side on desktop, stacked on phones; hourly rain charts below. */
+  /* Palette and type follow brittanyandjc.com: warm ivory, crimson titles, wine and blush, Lora + Work Sans.
+     Rain stays a dusty blue so it never reads as a red warning. */
+  * {
+    box-sizing: border-box;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 400 16px/1.55 var(--serif);
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .wrap {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding-top: max(24px, env(safe-area-inset-top, 0px));
+    padding-bottom: max(40px, env(safe-area-inset-bottom, 0px));
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    display: grid;
+    gap: 36px;
+  }
+
+  /* Elements toggled with the hidden attribute stay hidden even when a class sets display. */
+  [hidden] {
+    display: none !important;
+  }
+
+  footer {
+    font-family: var(--meta);
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+  footer a {
+    color: inherit;
+  }
+}

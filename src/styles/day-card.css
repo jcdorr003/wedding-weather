@@ -1,0 +1,284 @@
+/* Day cards, rain by time of day, early model read. */
+@layer components {
+  /* Day cards */
+  .days {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .day,
+  .day-body,
+  .day-text {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+  }
+  /* Side by side, each section lines up with the same section in the other cards, whatever its text length. */
+  @supports (grid-template-rows: subgrid) {
+    @media (min-width: 761px) {
+      .day {
+        grid-row: span 7;
+        grid-template-rows: subgrid;
+      }
+      .day > .card-head {
+        grid-row: 1;
+      }
+      .day > .temp {
+        grid-row: 2;
+      }
+      .day > .cond {
+        grid-row: 3;
+      }
+      .day > .stats {
+        grid-row: 4;
+      }
+      .day > .day-text {
+        grid-row: 5;
+      }
+      .day > .parts-wrap {
+        grid-row: 6;
+      }
+      .day > .night {
+        grid-row: 7;
+      }
+      .day > .day-body {
+        grid-row: 2 / span 6;
+      }
+      /* Next to full forecast cards, a model-read or pending card keeps its own height instead of stretching into an empty box. */
+      .days:has(> .day > .temp) > .day:has(> .day-body) {
+        grid-template-rows: none;
+        align-self: start;
+      }
+    }
+  }
+  .temp {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .hi {
+    font: 400 52px/1 var(--serif);
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .lo {
+    font-size: 15px;
+    color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .cond {
+    margin: -6px 0 0;
+    font-size: 17px;
+    font-weight: 500;
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 0;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+  }
+  .stats div {
+    min-width: 0;
+  }
+  .stats dt {
+    font-family: var(--meta);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .stats dd {
+    margin: 2px 0 0;
+    font-size: 20px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+  .stats dd.sub {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--ink-2);
+  }
+  .detail {
+    margin: 0;
+    font-size: 14px;
+    color: var(--ink-2);
+  }
+  .night {
+    margin: 0;
+    font-size: 14px;
+    color: var(--ink-2);
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+  }
+  .night b {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  /* Rain by time of day: four 6-hour blocks that match NWS's rain-amount periods */
+  .parts-wrap {
+    display: grid;
+    gap: 8px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+  }
+  .parts-h {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    font: 600 11px/1.3 var(--meta);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .parts-h span:last-child {
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 500;
+    color: var(--ink-2);
+    font-size: 12px;
+  }
+  .parts {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .part {
+    display: grid;
+    gap: 1px;
+    padding: 8px 4px;
+    border-radius: 10px;
+    background: var(--bg);
+    text-align: center;
+    min-width: 0;
+  }
+  .part.past {
+    opacity: 0.45;
+  }
+  .part-name {
+    font: 500 12px/1.2 var(--meta);
+    color: var(--ink-2);
+    overflow-wrap: anywhere;
+  }
+  .part-range {
+    font: 11px/1.2 var(--meta);
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .part-pop {
+    margin-top: 4px;
+    font-size: 18px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+  .part-amt {
+    font: 12px/1.2 var(--meta);
+    color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .parts-note {
+    margin: 0;
+    font-size: 13px;
+    color: var(--ink-3);
+  }
+  .pending {
+    margin: 0;
+    font-size: 14px;
+    color: var(--ink-2);
+  }
+  .pending-h {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 500;
+  }
+
+  /* Early model read (days the NWS forecast doesn't reach yet) */
+  .early-tag {
+    font-family: var(--meta);
+    justify-self: start;
+    margin: 0;
+    padding: 2px 9px;
+    border: 1px solid var(--note-line);
+    border-radius: 999px;
+    background: var(--note-bg);
+    color: var(--note-ink);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .early-h {
+    margin: 0;
+    font: 600 24px/1.2 var(--serif);
+    letter-spacing: -0.01em;
+  }
+  .early-sub {
+    margin: -8px 0 0;
+    font-size: 15px;
+    color: var(--ink-2);
+  }
+  .runs {
+    display: grid;
+    gap: 12px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+  }
+  .run {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 12px;
+    align-items: center;
+  }
+  .run-name {
+    font-family: var(--meta);
+    grid-column: 1 / -1;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .run-bar {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--line);
+    overflow: hidden;
+  }
+  .run-bar i {
+    display: block;
+    height: 100%;
+    border-radius: 3px;
+    background: var(--rain);
+  }
+  .run-n {
+    font-family: var(--meta);
+    font-size: 13px;
+    color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .early-note {
+    margin: 0;
+    font-size: 13px;
+    color: var(--ink-3);
+    max-width: 72ch;
+  }
+  .early-note a {
+    color: inherit;
+  }
+
+  /* Phones: cards stack. Last in the file so it overrides the three-column grid above. */
+  @media (max-width: 760px) {
+    .days,
+    .day {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .hi {
+      font-size: 46px;
+    }
+  }
+}

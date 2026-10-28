@@ -1,0 +1,316 @@
+{
+  "title": "Thursday–Saturday, November 5–7",
+  "stamp": "Updated Tue, Oct 27, 12:00 PM EDT · NWS forecast issued 11:20 AM",
+  "refresh": "Refresh Data",
+  "alerts": [],
+  "notice": [],
+  "days": [
+    {
+      "text": "Thursday Nov 5 EARLY MODEL READ Leaning wet About 7 in 10 model runs show rain that day. Confidence is low this far out, so expect this to shift. US MODEL (GFS) 21 of 31 runs EUROPEAN MODEL (ECMWF) 38 of 51 runs The official NWS forecast for Thursday should appear around Friday, Oct 30.",
+      "sections": [
+        "card-head",
+        "day-body"
+      ],
+      "runBars": [
+        "67.7419%",
+        "74.5098%"
+      ],
+      "parts": []
+    },
+    {
+      "text": "Friday Nov 6 EARLY MODEL READ Could go either way About 4 in 10 model runs show rain that day. Confidence is low this far out, so expect this to shift. US MODEL (GFS) 13 of 31 runs EUROPEAN MODEL (ECMWF) 24 of 51 runs The official NWS forecast for Friday should appear around Saturday, Oct 31.",
+      "sections": [
+        "card-head",
+        "day-body"
+      ],
+      "runBars": [
+        "41.9355%",
+        "47.0588%"
+      ],
+      "parts": []
+    },
+    {
+      "text": "Saturday Nov 7 EARLY MODEL READ Leaning dry About 2 in 10 model runs show rain that day. Confidence is low this far out, so expect this to shift. US MODEL (GFS) 6 of 31 runs EUROPEAN MODEL (ECMWF) 12 of 51 runs The official NWS forecast for Saturday should appear around Sunday, Nov 1.",
+      "sections": [
+        "card-head",
+        "day-body"
+      ],
+      "runBars": [
+        "19.3548%",
+        "23.5294%"
+      ],
+      "parts": []
+    }
+  ],
+  "earlyNote": true,
+  "timelines": [
+    {
+      "verdict": [
+        "Hourly data not out yet",
+        "The NWS hourly forecast currently runs through Mon, Nov 2, 8:00 PM EST. Friday’s hours should appear around Saturday, Oct 31."
+      ],
+      "cols": [
+        {
+          "cls": "col missing",
+          "label": "12 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "1 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "2 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "3 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "4 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "5 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "6 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "7 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "8 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "9 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "10 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "11 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "12 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "1 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "2 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "3 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "4 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "5 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "6 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "7 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "8 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "9 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "10 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "11 PM: no hourly data yet",
+          "h": null
+        }
+      ],
+      "key": "20% or more Under 20%",
+      "hours": []
+    },
+    {
+      "verdict": [
+        "Hourly data not out yet",
+        "The NWS hourly forecast currently runs through Mon, Nov 2, 8:00 PM EST. Saturday’s hours should appear around Sunday, Nov 1."
+      ],
+      "cols": [
+        {
+          "cls": "col missing",
+          "label": "12 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "1 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "2 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "3 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "4 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "5 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "6 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "7 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "8 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "9 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "10 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "11 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "12 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "1 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "2 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "3 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "4 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "5 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "6 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "7 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "8 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "9 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "10 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "11 PM: no hourly data yet",
+          "h": null
+        }
+      ],
+      "key": "20% or more Under 20%",
+      "hours": []
+    }
+  ],
+  "radar": "https://radar.weather.gov/station/kdix/standard",
+  "footer": "Forecast from the National Weather Service, OKX grid 35,40 (40.665° N, 73.971° W).",
+  "footerLink": "https://forecast.weather.gov/MapClick.php?lat=40.665&lon=-73.971",
+  "overflow": 0,
+  "columns": {
+    "days": 3,
+    "timelines": 2
+  }
+}

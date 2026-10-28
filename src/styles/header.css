@@ -1,0 +1,104 @@
+/* Header: title, Refresh button, timestamp. */
+@layer components {
+  /* Header */
+  .top {
+    display: grid;
+    gap: 14px;
+  }
+  .eyebrow {
+    font-family: var(--meta);
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  h1 {
+    margin: 0;
+    color: var(--heading);
+    font: 500 clamp(30px, 6.5vw, 44px)/1.1 var(--serif);
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+  }
+  .btn {
+    appearance: none;
+    border: 0;
+    border-radius: 999px;
+    min-height: 44px;
+    padding: 0 20px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font: 500 15px/1 var(--meta);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .btn:focus-visible {
+    outline: 3px solid var(--rain);
+    outline-offset: 3px;
+  }
+  .btn:active {
+    transform: translateY(1px);
+  }
+  .btn[disabled] {
+    opacity: 0.75;
+    cursor: progress;
+  }
+  .spin {
+    display: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    animation: spin 0.8s linear infinite;
+  }
+  .btn.loading .spin {
+    display: inline-block;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .stamp {
+    font-family: var(--meta);
+    margin: 0;
+    font-size: 12px;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Room for the longest timestamp and button label, so the header doesn't reflow when data arrives. */
+  .btn {
+    min-width: 9.6em;
+    justify-content: center;
+  }
+  .controls .stamp {
+    flex: 1 1 10em;
+  }
+  @media (max-width: 760px) {
+    .stamp {
+      min-height: 3lh;
+      align-content: center;
+      display: grid;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .spin {
+      animation: none;
+      border-right-color: currentColor;
+      opacity: 0.6;
+    }
+  }
+}

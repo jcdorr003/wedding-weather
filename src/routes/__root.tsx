@@ -2,30 +2,11 @@ import { HeadContent, Outlet, Scripts, createRootRoute } from '@tanstack/react-r
 import type { ReactNode } from 'react'
 import loraFont from '@fontsource-variable/lora/files/lora-latin-wght-normal.woff2?url'
 import workSansFont from '@fontsource-variable/work-sans/files/work-sans-latin-wght-normal.woff2?url'
-import { WEDDING_DAYS } from '../lib/config'
-import { skeletonScript } from '../lib/skeleton'
-import { SCENARIOS } from '../mocks/scenario-list'
+import { skeletonHeadScript, touchIconScript } from '../lib/head-scripts'
 import appCss from '../styles/app.css?url'
 
 const BASE = import.meta.env.BASE_URL
-
-// iOS can't switch a Home Screen icon with dark mode, so offer the dark one if the phone is dark when it's added.
-const touchIconScript = `(() => {
-  try {
-    const dark = matchMedia('(prefers-color-scheme: dark)');
-    const pick = () => {
-      document.getElementById('touch-icon').href = '${BASE}' + (dark.matches ? 'icons/apple-touch-icon-dark.png' : 'icons/apple-touch-icon.png');
-    };
-    pick();
-    dark.addEventListener('change', pick);
-  } catch { /* keep the light icon */ }
-})();`
-
-// In mock builds the skeleton guess uses the scenario's pretend time, like the rest of the page.
-const skeletonNow =
-  import.meta.env.MODE === 'mock'
-    ? `Date.parse((${JSON.stringify(Object.fromEntries(Object.entries(SCENARIOS).map(([k, v]) => [k, 'now' in v ? v.now : null])))})[new URLSearchParams(location.search).get('scenario') || 'wedding'] || '') || Date.now()`
-    : undefined
+const MOCK = import.meta.env.MODE === 'mock'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -40,7 +21,7 @@ export const Route = createRootRoute({
       { name: 'apple-mobile-web-app-title', content: 'Wedding Weather' },
       { name: 'apple-mobile-web-app-status-bar-style', content: 'default' },
       { name: 'format-detection', content: 'telephone=no' },
-      { title: import.meta.env.MODE === 'mock' ? 'MOCK · Wedding Weekend Weather' : 'Wedding Weekend Weather' },
+      { title: MOCK ? 'MOCK · Wedding Weekend Weather' : 'Wedding Weekend Weather' },
     ],
     links: [
       { rel: 'manifest', href: `${BASE}manifest.webmanifest` },
@@ -71,7 +52,7 @@ export const Route = createRootRoute({
         : []),
       { rel: 'stylesheet', href: appCss },
     ],
-    scripts: [{ children: touchIconScript }, { children: skeletonScript(WEDDING_DAYS, skeletonNow) }],
+    scripts: [{ children: touchIconScript }, { children: skeletonHeadScript }],
   }),
   component: () => (
     <Document>
@@ -80,17 +61,15 @@ export const Route = createRootRoute({
   ),
 })
 
-function Document({ children }: { children: ReactNode }) {
-  return (
-    // The inline <head> script marks <html> with the skeleton shape before React hydrates.
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  )
-}
+const Document = ({ children }: { children: ReactNode }) => (
+  // The inline <head> script marks <html> with the skeleton shape before React hydrates.
+  <html lang="en" suppressHydrationWarning>
+    <head>
+      <HeadContent />
+    </head>
+    <body>
+      {children}
+      <Scripts />
+    </body>
+  </html>
+)

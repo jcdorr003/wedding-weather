@@ -1,0 +1,39 @@
+/* Mock-mode banner with the scenario switcher (local preview only). */
+@layer mock {
+  /* Fixed to the bottom so it never pushes the page around. */
+  body:has(.mock-bar) {
+    padding-bottom: 120px;
+  }
+  .mock-bar {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 30;
+    max-height: 40vh;
+    overflow: auto;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.12);
+    background: var(--note-bg);
+    color: var(--note-ink);
+    border-top: 1px solid var(--note-line);
+    font: 13px/1.45 var(--meta);
+    display: grid;
+    gap: 8px;
+    padding: 10px max(16px, env(safe-area-inset-right, 0px)) max(10px, env(safe-area-inset-bottom, 0px))
+      max(16px, env(safe-area-inset-left, 0px));
+  }
+  .mock-bar nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .mock-bar a {
+    color: inherit;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--note-line);
+    text-decoration: none;
+  }
+  .mock-bar a[aria-current='page'] {
+    background: var(--surface);
+    font-weight: 600;
+  }
+}

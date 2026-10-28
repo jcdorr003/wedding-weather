@@ -1,0 +1,52 @@
+/* Sections, cards and the responsive grid. */
+@layer components {
+  /* Sections */
+  section {
+    display: grid;
+    gap: 14px;
+    min-width: 0;
+  }
+  .section-h {
+    font-family: var(--meta);
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .section-sub {
+    margin: -8px 0 0;
+    font-size: 14px;
+    color: var(--ink-2);
+    max-width: 62ch;
+  }
+  .section-sub a {
+    color: inherit;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 18px;
+    min-width: 0;
+  }
+  .card-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .card-head h3 {
+    margin: 0;
+    font: 600 20px/1.2 var(--serif);
+    color: var(--heading);
+  }
+  .card-head .date {
+    font-family: var(--meta);
+    font-size: 14px;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+}

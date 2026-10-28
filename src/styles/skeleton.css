@@ -1,0 +1,133 @@
+/* Loading skeletons: the real card markup with sample text, painted as bars so every size matches. */
+@layer skeleton {
+  .skeleton
+    :is(
+      .hi,
+      .lo,
+      .cond,
+      dt,
+      dd,
+      .detail,
+      .night,
+      .part-name,
+      .part-range,
+      .part-pop,
+      .part-amt,
+      .parts-h span,
+      .early-tag,
+      .early-h,
+      .early-sub,
+      .run-name,
+      .run-n,
+      .pending,
+      .verdict-h,
+      .verdict-sub,
+      summary,
+      .key span
+    ) {
+    color: transparent !important;
+    border-color: transparent;
+    background: var(--line);
+    border-radius: 6px;
+    width: fit-content;
+    max-width: 100%;
+    animation: skel-pulse 1.6s ease-in-out infinite;
+  }
+  /* Multi-line text becomes one bar per line. */
+  .skeleton :is(.detail, .early-sub, .pending, .verdict-sub, .night) {
+    width: auto;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0 0.22lh,
+      var(--line) 0.22lh 0.78lh,
+      transparent 0.78lh 1lh
+    );
+  }
+  .skeleton :is(.part, .run-bar i, .sw) {
+    background: var(--line);
+  }
+  .skeleton .run-bar i {
+    width: 50% !important;
+  }
+  .skeleton .card-head {
+    opacity: 0.6;
+  }
+  .skeleton summary {
+    pointer-events: none;
+    list-style: none;
+  }
+  .skeleton summary::-webkit-details-marker {
+    display: none;
+  }
+  @keyframes skel-pulse {
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  /* Skeleton cards size to their own content rather than the shared subgrid. */
+  .days > .day.skeleton {
+    grid-template-rows: none;
+    align-self: start;
+  }
+  .sk-v {
+    display: contents;
+  }
+  /* Prerendered HTML carries every variant; the inline <head> script picks one per day (default: model read). */
+  .days > .skeleton .sk-v:not(.sk-model),
+  .timelines > .skeleton .sk-v:not(.sk-model) {
+    display: none;
+  }
+  html[data-skel-0] .days > .skeleton:nth-child(1) .sk-model,
+  html[data-skel-1] .days > .skeleton:nth-child(2) .sk-model,
+  html[data-skel-2] .days > .skeleton:nth-child(3) .sk-model,
+  html[data-skel-1] .timelines > .skeleton:nth-child(1) .sk-model,
+  html[data-skel-2] .timelines > .skeleton:nth-child(2) .sk-model {
+    display: none;
+  }
+  html[data-skel-0='full'] .days > .skeleton:nth-child(1) .sk-full,
+  html[data-skel-1='full'] .days > .skeleton:nth-child(2) .sk-full,
+  html[data-skel-2='full'] .days > .skeleton:nth-child(3) .sk-full,
+  html[data-skel-1='full'] .timelines > .skeleton:nth-child(1) .sk-full,
+  html[data-skel-2='full'] .timelines > .skeleton:nth-child(2) .sk-full,
+  html[data-skel-0='model'] .days > .skeleton:nth-child(1) .sk-model,
+  html[data-skel-1='model'] .days > .skeleton:nth-child(2) .sk-model,
+  html[data-skel-2='model'] .days > .skeleton:nth-child(3) .sk-model,
+  html[data-skel-1='model'] .timelines > .skeleton:nth-child(1) .sk-model,
+  html[data-skel-2='model'] .timelines > .skeleton:nth-child(2) .sk-model,
+  html[data-skel-0='passed'] .days > .skeleton:nth-child(1) .sk-passed,
+  html[data-skel-1='passed'] .days > .skeleton:nth-child(2) .sk-passed,
+  html[data-skel-2='passed'] .days > .skeleton:nth-child(3) .sk-passed,
+  html[data-skel-1='passed'] .timelines > .skeleton:nth-child(1) .sk-passed,
+  html[data-skel-2='passed'] .timelines > .skeleton:nth-child(2) .sk-passed {
+    display: contents;
+  }
+  /* The model-read explainer under the cards is reserved too, when a model read is expected. */
+  .early-note.predicted {
+    display: none;
+  }
+  html:is([data-skel-0='model'], [data-skel-1='model'], [data-skel-2='model']) .early-note.predicted {
+    display: block;
+  }
+
+  /* The forecast fades in over the skeleton. */
+  .card:not(.skeleton),
+  .alert,
+  .notice:not([hidden]) {
+    animation: reveal 0.3s ease-out both;
+  }
+  @keyframes reveal {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton *,
+    .card,
+    .alert,
+    .notice {
+      animation: none !important;
+    }
+  }
+}

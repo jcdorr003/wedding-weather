@@ -1,0 +1,211 @@
+/* Hourly rain timelines and the bar tooltip. */
+@layer components {
+  /* Hourly rain timelines */
+  .timelines {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .tl {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+  }
+  .verdict-h {
+    margin: 0;
+    font: 600 22px/1.2 var(--serif);
+    letter-spacing: -0.01em;
+  }
+  .verdict-sub {
+    margin: 4px 0 0;
+    font-size: 14px;
+    color: var(--ink-2);
+  }
+
+  .chart {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    padding-top: 8px;
+  }
+  .yaxis {
+    position: relative;
+    height: 140px;
+  }
+  .yaxis span {
+    font-family: var(--meta);
+    position: absolute;
+    right: 6px;
+    transform: translateY(50%);
+    font-size: 11px;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .plot {
+    position: relative;
+    height: 140px;
+  }
+  .gl {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 0;
+    border-top: 1px solid var(--line);
+  }
+  .gl.thresh {
+    border-top: 1px dashed var(--ink-3);
+    opacity: 0.7;
+  }
+  .bars {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(24, minmax(0, 1fr));
+    gap: 2px;
+  }
+  .col {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    border-radius: 4px 4px 0 0;
+    cursor: pointer;
+    outline: none;
+    touch-action: manipulation;
+  }
+  .col i {
+    display: block;
+    width: 100%;
+    min-height: 2px;
+    background: var(--rain-soft);
+    border-radius: 3px 3px 0 0;
+  }
+  .col.wet i {
+    background: var(--rain);
+  }
+  .col.missing i {
+    height: 2px !important;
+    background: var(--line);
+  }
+  .col:hover,
+  .col.active,
+  .col:focus-visible {
+    background: var(--hover);
+  }
+  .col:focus-visible {
+    box-shadow: 0 0 0 2px var(--rain);
+  }
+  .col.clear-start::before {
+    content: '';
+    position: absolute;
+    left: -2px;
+    top: -8px;
+    bottom: 0;
+    border-left: 2px dotted var(--ink-2);
+  }
+  .xaxis {
+    font-family: var(--meta);
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    margin: 6px 0 0 34px;
+    font-size: 11px;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .key {
+    font-family: var(--meta);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    font-size: 12px;
+    color: var(--ink-2);
+  }
+  .key span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .sw {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    background: var(--rain);
+  }
+  .sw.soft {
+    background: var(--rain-soft);
+  }
+  .sw.clear {
+    width: 0;
+    height: 12px;
+    border-radius: 0;
+    border-left: 2px dotted var(--ink-2);
+    background: none;
+  }
+
+  details {
+    border-top: 1px solid var(--line);
+    padding-top: 10px;
+  }
+  summary {
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink-2);
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+  }
+  summary:focus-visible {
+    outline: 2px solid var(--rain);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  .hours {
+    font-family: var(--meta);
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+  }
+  .hours li {
+    display: grid;
+    grid-template-columns: 4.5em 3.2em 2.8em minmax(0, 1fr);
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .hours li:last-child {
+    border-bottom: 0;
+  }
+  .hours .t {
+    color: var(--ink-2);
+  }
+  .hours .s {
+    color: var(--ink-2);
+    overflow-wrap: anywhere;
+  }
+
+  .tip {
+    font-family: var(--meta);
+    position: fixed;
+    z-index: 20;
+    max-width: 240px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: var(--ink);
+    color: var(--bg);
+    font-size: 13px;
+    line-height: 1.35;
+    pointer-events: none;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+  }
+  .tip b {
+    font-weight: 600;
+  }
+
+  /* Phones: timelines stack. Last in the file so it overrides the two-column grid above. */
+  @media (max-width: 760px) {
+    .timelines {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}

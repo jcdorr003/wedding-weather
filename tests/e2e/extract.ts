@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test'
 
 /** Wait until the page has finished loading (official forecast and extras), as a person would see it. */
-export async function settle(page: Page) {
+export const settle = async (page: Page) => {
   await page.waitForFunction(
     () => {
       const btn = document.querySelector<HTMLButtonElement>('#refresh')
@@ -15,7 +15,7 @@ export async function settle(page: Page) {
 }
 
 /** Everything the page shows, as plain data, so two implementations can be compared field by field. */
-export function extract(page: Page) {
+export const extract = (page: Page) => {
   return page.evaluate(() => {
     const text = (el: Element | null) => (el as HTMLElement | null)?.innerText.replace(/\s+/g, ' ').trim() ?? null
     const all = (sel: string, root: ParentNode = document) => [...root.querySelectorAll(sel)]
@@ -30,7 +30,7 @@ export function extract(page: Page) {
       alerts: visible('#alerts')
         ? all('.alert').map((a) => ({
             text: text(a),
-            cls: a.className.trim().split(/\s+/).sort(),
+            cls: a.className.trim().split(/\s+/).toSorted(),
             href: a.querySelector('a')?.getAttribute('href'),
           }))
         : [],
@@ -49,7 +49,7 @@ export function extract(page: Page) {
             .trim()
             .split(/\s+/)
             .filter((x) => x !== 'active')
-            .sort()
+            .toSorted()
             .join(' '),
           label: c.getAttribute('aria-label'),
           h: (c.querySelector('i') as HTMLElement).style.height || null,
@@ -61,6 +61,11 @@ export function extract(page: Page) {
       footer: text(document.querySelector('#footer')),
       footerLink: document.querySelector('#footer a')?.getAttribute('href') ?? null,
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      // How many columns the cards form (catches layout regressions such as phones losing the stacked layout).
+      columns: {
+        days: new Set(all('.day').map((d) => Math.round(d.getBoundingClientRect().left))).size,
+        timelines: new Set(all('.tl').map((t) => Math.round(t.getBoundingClientRect().left))).size,
+      },
     }
   })
 }

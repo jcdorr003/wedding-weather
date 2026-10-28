@@ -1,0 +1,347 @@
+{
+  "title": "Thursday–Saturday, November 5–7",
+  "stamp": "Updated Sat, Oct 31, 10:00 AM EDT · NWS forecast issued 9:20 AM",
+  "refresh": "Refresh Data",
+  "alerts": [],
+  "notice": [],
+  "days": [
+    {
+      "text": "Thursday Nov 5 58° Low 49° Rain Showers Likely RAIN CHANCE 70% Night 60% WIND 10–15 mph from S Showers likely, mainly after 11am. Cloudy, with a high near 58. South wind 10 to 15 mph. Chance of precipitation is 70%. New rainfall amounts between a quarter and half of an inch possible. Chance of thunder up to 20%. RAIN BY TIME OF DAY Early 1a–7a 12% — Morning 7a–1p 68% — Afternoon 1p–7p 72% — Evening 7p–1a 62% — NWS rain amounts come out about 3 days ahead, around Monday, Nov 2. Night Showers Likely, low 49°, wind 5 mph",
+      "sections": [
+        "card-head",
+        "temp",
+        "cond",
+        "stats",
+        "day-text",
+        "parts-wrap",
+        "night"
+      ],
+      "runBars": [],
+      "parts": [
+        "part",
+        "part",
+        "part",
+        "part"
+      ]
+    },
+    {
+      "text": "Friday Nov 6 55° Low 44° Chance Rain Showers then Partly Sunny RAIN CHANCE 40% Night 5% WIND 10–20 mph from NW · gusts to 28 mph A chance of rain showers before 11am. Partly sunny, with a high near 55. Northwest wind 10 to 20 mph, with gusts as high as 28 mph. Chance of precipitation is 40%. RAIN BY TIME OF DAY Early 1a–7a 64% — Morning 7a–1p 44% — Afternoon 1p–7p 12% — Evening 7p–1a — — NWS rain amounts come out about 3 days ahead, around Tuesday, Nov 3. Night Mostly Clear, low 44°, wind 5 mph",
+      "sections": [
+        "card-head",
+        "temp",
+        "cond",
+        "stats",
+        "day-text",
+        "parts-wrap",
+        "night"
+      ],
+      "runBars": [],
+      "parts": [
+        "part",
+        "part",
+        "part",
+        "part"
+      ]
+    },
+    {
+      "text": "Saturday Nov 7 EARLY MODEL READ Leaning dry About 2 in 10 model runs show rain that day. Confidence is low this far out, so expect this to shift. US MODEL (GFS) 6 of 31 runs EUROPEAN MODEL (ECMWF) 12 of 51 runs The official NWS forecast for Saturday should appear around Sunday, Nov 1.",
+      "sections": [
+        "card-head",
+        "day-body"
+      ],
+      "runBars": [
+        "19.3548%",
+        "23.5294%"
+      ],
+      "parts": []
+    }
+  ],
+  "earlyNote": true,
+  "timelines": [
+    {
+      "verdict": [
+        "Dry from 12 PM",
+        "Rain chance reaches 20% or more between 12 AM and 11 AM, then stays under 20%. Peak 64% at 1 AM. Hourly data currently ends at 3 PM."
+      ],
+      "cols": [
+        {
+          "cls": "col wet",
+          "label": "12 AM: 62% chance of rain, 50°F, Rain Showers Likely",
+          "h": "62%"
+        },
+        {
+          "cls": "col wet",
+          "label": "1 AM: 64% chance of rain, 49°F, Rain Showers Likely",
+          "h": "64%"
+        },
+        {
+          "cls": "col wet",
+          "label": "2 AM: 60% chance of rain, 49°F, Rain Showers Likely",
+          "h": "60%"
+        },
+        {
+          "cls": "col wet",
+          "label": "3 AM: 58% chance of rain, 48°F, Chance Rain Showers",
+          "h": "58%"
+        },
+        {
+          "cls": "col wet",
+          "label": "4 AM: 55% chance of rain, 48°F, Chance Rain Showers",
+          "h": "55%"
+        },
+        {
+          "cls": "col wet",
+          "label": "5 AM: 52% chance of rain, 47°F, Chance Rain Showers",
+          "h": "52%"
+        },
+        {
+          "cls": "col wet",
+          "label": "6 AM: 48% chance of rain, 47°F, Chance Rain Showers",
+          "h": "48%"
+        },
+        {
+          "cls": "col wet",
+          "label": "7 AM: 44% chance of rain, 48°F, Chance Rain Showers",
+          "h": "44%"
+        },
+        {
+          "cls": "col wet",
+          "label": "8 AM: 38% chance of rain, 49°F, Chance Rain Showers",
+          "h": "38%"
+        },
+        {
+          "cls": "col wet",
+          "label": "9 AM: 31% chance of rain, 50°F, Chance Rain Showers",
+          "h": "31%"
+        },
+        {
+          "cls": "col wet",
+          "label": "10 AM: 24% chance of rain, 52°F, Slight Chance Rain Showers",
+          "h": "24%"
+        },
+        {
+          "cls": "col wet",
+          "label": "11 AM: 21% chance of rain, 53°F, Slight Chance Rain Showers",
+          "h": "21%"
+        },
+        {
+          "cls": "clear-start col",
+          "label": "12 PM: 16% chance of rain, 54°F, Partly Sunny",
+          "h": "16%"
+        },
+        {
+          "cls": "col",
+          "label": "1 PM: 12% chance of rain, 55°F, Partly Sunny",
+          "h": "12%"
+        },
+        {
+          "cls": "col",
+          "label": "2 PM: 9% chance of rain, 55°F, Partly Sunny",
+          "h": "9%"
+        },
+        {
+          "cls": "col",
+          "label": "3 PM: 7% chance of rain, 54°F, Partly Sunny",
+          "h": "7%"
+        },
+        {
+          "cls": "col missing",
+          "label": "4 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "5 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "6 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "7 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "8 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "9 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "10 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "11 PM: no hourly data yet",
+          "h": null
+        }
+      ],
+      "key": "20% or more Under 20% Dries out",
+      "hours": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "verdict": [
+        "Hourly data not out yet",
+        "The NWS hourly forecast currently runs through Fri, Nov 6, 3:00 PM EST. Saturday’s hours should appear around Sunday, Nov 1."
+      ],
+      "cols": [
+        {
+          "cls": "col missing",
+          "label": "12 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "1 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "2 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "3 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "4 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "5 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "6 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "7 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "8 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "9 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "10 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "11 AM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "12 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "1 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "2 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "3 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "4 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "5 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "6 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "7 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "8 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "9 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "10 PM: no hourly data yet",
+          "h": null
+        },
+        {
+          "cls": "col missing",
+          "label": "11 PM: no hourly data yet",
+          "h": null
+        }
+      ],
+      "key": "20% or more Under 20%",
+      "hours": []
+    }
+  ],
+  "radar": "https://radar.weather.gov/station/kdix/standard",
+  "footer": "Forecast from the National Weather Service, OKX grid 35,40 (40.665° N, 73.971° W).",
+  "footerLink": "https://forecast.weather.gov/MapClick.php?lat=40.665&lon=-73.971",
+  "overflow": 0,
+  "columns": {
+    "days": 3,
+    "timelines": 2
+  }
+}

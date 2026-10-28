@@ -16,5 +16,13 @@
     "typescript/no-unsafe-type-assertion": "off",
     "jsx-a11y/no-noninteractive-tabindex": "off"
   },
-  "ignorePatterns": ["dist", "dist-mock", "legacy", "dev", "src/routeTree.gen.ts"]
+  "ignorePatterns": ["dist", "dist-mock", "src/routeTree.gen.ts"],
+  "overrides": [
+    {
+      "files": ["tests/e2e/extract.ts", "scripts/audit/extract.mjs"],
+      "rules": {
+        "unicorn/consistent-function-scoping": "off"
+      }
+    }
+  ]
 }

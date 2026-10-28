@@ -1,0 +1,26 @@
+/* Design tokens: brittanyandjc.com palette and type. light-dark() picks the value for the colour scheme. */
+@layer tokens {
+  /* One set of tokens; light-dark() picks the value for the current colour scheme. */
+  :root {
+    color-scheme: light dark;
+    --bg: light-dark(#f8efe9, #1a1012);
+    --surface: light-dark(#fffaf5, #241719);
+    --ink: light-dark(#2a1c1e, #f6ece6);
+    --ink-2: light-dark(#66524f, #c9b5ae);
+    --ink-3: light-dark(#8f7a75, #9c8781);
+    --line: light-dark(#ecdcd3, #3b2a2d);
+    --hover: light-dark(#f5e7e0, #2f1f22);
+    --heading: light-dark(#9b1b22, #f0b8b2);
+    --accent: light-dark(#9b1b22, #eed8ce);
+    --accent-ink: light-dark(#fffaf5, #6c1d2c);
+    --rain: light-dark(#4f7396, #8fb0cf);
+    --rain-soft: light-dark(#bccbd9, #3f5468);
+    --note-bg: light-dark(#f6e2d9, #3a2126);
+    --note-line: light-dark(#e5c6b8, #5c3339);
+    --note-ink: light-dark(#6c1d2c, #f2d6cc);
+    --serif: 'Lora Variable', 'Lora', Georgia, 'Times New Roman', serif;
+    --meta:
+      'Work Sans Variable', 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+      sans-serif;
+  }
+}
