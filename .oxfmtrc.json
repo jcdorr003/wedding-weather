@@ -1,0 +1,17 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 120,
+  "semi": false,
+  "singleQuote": true,
+  "ignorePatterns": [
+    "legacy/**",
+    "dev/wedding-weather-mock.html",
+    "dev/mock-data.js",
+    "src/routeTree.gen.ts",
+    "dist/**",
+    "dist-mock/**",
+    "pnpm-lock.yaml",
+    "**/*.md",
+    ".github/**"
+  ]
+}
