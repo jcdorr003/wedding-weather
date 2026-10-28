@@ -196,6 +196,8 @@
       .day > .parts-wrap { grid-row: 6; }
       .day > .night { grid-row: 7; }
       .day > .day-body { grid-row: 2 / span 6; }
+      /* Next to full forecast cards, a model-read or pending card keeps its own height instead of stretching into an empty box. */
+      .days:has(> .day > .temp) > .day:has(> .day-body) { grid-template-rows: none; align-self: start; }
     }
   }
   .temp { display: flex; align-items: baseline; gap: 12px; }

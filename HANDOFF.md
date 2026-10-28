@@ -26,6 +26,18 @@ Windows/WSL → owner's Mac (Oct 27) → back to the Windows PC (Oct 28). Read `
   cards stack at their natural height. **Not visually checked: Sat 2:30 AM** (same card code path).
 - The owner has not yet tried the mock with these changes and has not approved a deploy.
 
+## PC session, Oct 28 (~1 AM EDT)
+
+- Sat 2:30 AM mock checked at 1440/1024/375px: fine, Saturday shows the 47° night low. Live site = `main`;
+  NWS (issued 11:32 PM Oct 27) still ends Tue Nov 3, so all three days show the model read; run counts
+  matched `expected.py`. No alerts. Live page says "issued 11:32 PM" without the day (fixed on this branch).
+- The owner tried the mock: in Halfway, Saturday's model-read card stretched to the height of the full
+  Thu/Fri cards and looked empty. Fix: in a row with at least one full forecast card, model-read / pending /
+  passed cards leave the subgrid and keep their natural height (`.days:has(> .day > .temp) > .day:has(> .day-body)`).
+  When all three are model reads (Today) they still stretch to equal height. Re-measured every scenario at
+  1440px: full cards still line up exactly; no errors.
+- Deploy still NOT approved — the owner said "do whatever you recommend" about committing, not a deploy yes.
+
 ## What's on this branch (vs `main`)
 
 Accuracy audit — every number on the page was checked against an independent recomputation from the raw
@@ -51,7 +63,8 @@ New (all NWS):
 - Live radar link (station from `/points`, currently KDIX).
 
 Layout:
-- Day-card sections line up across cards on wide screens (see the Mac session notes above).
+- Day-card sections line up across cards on wide screens (see the Mac session notes above). Short cards
+  (model read, pending, passed) next to full ones keep their own height (PC session notes).
 
 Deliberately removed after discussion: model "soaking rain" odds 9–11 days out (low skill, would add worry).
 
