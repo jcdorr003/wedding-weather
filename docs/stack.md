@@ -38,7 +38,7 @@ day); lean "max edge" where it's stable and helps the app scale.
 4. Verify: live HTML, manifest `id`, icons, and Chrome installability (`Page.getInstallabilityErrors`; only `in-incognito`).
 
 **Rollback:** Settings → Pages → Source back to "Deploy from a branch" (`main`, `/`) after restoring `index.html` at the
-root (`git show 1528b63:index.html > index.html`), or simply re-run the deploy from an earlier commit.
+root (`git show 4aeff40:index.html > index.html`), or simply re-run the deploy from an earlier commit.
 
 ## Known differences from the vanilla page (deliberate)
 

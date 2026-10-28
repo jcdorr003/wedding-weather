@@ -4,13 +4,16 @@ Windows/WSL → owner's Mac (Oct 27) → back to the Windows PC (Oct 28). Read `
 
 ## State
 
-- `main` = what's live. **Deployed Oct 28 ~1:40 AM EDT (`1528b63`): this branch's `index.html`** after the owner
+- `main` = what's live. **Deployed Oct 28 ~1:40 AM EDT (`4aeff40`): this branch's `index.html`** after the owner
   re-checked the mock and said yes. Verified: live HTML byte-identical, manifest/icons 200, Chrome installability
   only `in-incognito`.
-- **Cutover done Oct 28 ~2:35 AM EDT, on the owner's "Go for it".** The React rebuild (merge `4fbc021`) is live.
+- **Cutover done Oct 28 ~2:35 AM EDT, on the owner's "Go for it".** The React rebuild (merge `53a1c5d`) is live.
   Pages source is now **GitHub Actions** (`deploy.yml`, every push to `main`). Verified live: React HTML served,
   manifest `id`/`scope`/`start_url` unchanged, icons 200, `CLAUDE.md`/`HANDOFF.md`/`dev/` 404 (not published),
   Chrome installability: no errors, audit MATCH (wedding days and Oct 29–31). Stack and reasons: `docs/stack.md`.
+- Oct 28 ~2:45 AM: on the owner's request, history on all branches was rewritten to drop `Co-Authored-By: Claude`
+  trailers and to replace the work email on 3 Mac-session commits with jcdorr003@gmail.com (file contents and dates
+  unchanged; commit IDs changed). Never add attribution again.
 - Ask the owner whether the Home Screen icon on her iPhone still opens fine (it should: same URL and manifest id).
 
 ## React rebuild (Oct 28, ~1:30–2:30 AM EDT)
@@ -50,9 +53,9 @@ Chromium is in `~/.cache/ms-playwright`. `pkill -f <pattern>` in a shared shell 
   Model-run counts matched `dev/audit/expected.py` exactly (Thu 19/31 GFS, 27/51 ECMWF; Fri 12/31, 28/51;
   Sat 9/31, 21/51). There were no alerts. Expected NWS coverage: Thu around Oct 30, Fri around Oct 31,
   Sat around Nov 1.
-- `7a2633d`: fixed the out-of-date "Halfway" mock banner note (it still mentioned the removed
+- `2347a50`: fixed the out-of-date "Halfway" mock banner note (it still mentioned the removed
   soaking-rain odds).
-- `9871a28`: the owner said the day cards looked off because sections sat at different heights depending
+- `bc3dd93`: the owner said the day cards looked off because sections sat at different heights depending
   on text length. On wide screens (>760px) the cards now use CSS subgrid. Every section (head, temp,
   conditions, stats, `.day-text` (description + thunder), `.parts-wrap`, `.night`) is pinned to a shared
   row, so each lines up across the three cards. Model-read/pending cards wrap their body in `.day-body`

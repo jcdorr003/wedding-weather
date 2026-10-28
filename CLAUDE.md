@@ -17,6 +17,9 @@ Live at https://jcdorr003.github.io/wedding-weather/ (GitHub Pages via Actions: 
   `http://localhost:4173/wedding-weather/` to open locally (scenario switcher at the bottom), then wait for an
   explicit yes. Screenshots alone are not enough. (Vanilla page: `python3 dev/build-mock.py` →
   `dev/wedding-weather-mock.html`.)
+- **No AI attribution in git.** No `Co-Authored-By` trailers, "Generated with" lines or similar in commits, PR
+  descriptions or anything else pushed. The owner doesn't want Claude showing up as a contributor. (Talking about it,
+  and this file, is fine.) History was rewritten on Oct 28, 2026 to remove the old trailers.
 - Match the owner's wedding site (brittanyandjc.com): ivory `#fffaf5`, crimson `#9b1b22`, wine `#6d1d2d`,
   blush `#eed8ce`, Lora + Work Sans, hand-drawn line art.
 
