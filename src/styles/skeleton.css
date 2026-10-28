@@ -130,4 +130,13 @@
       animation: none !important;
     }
   }
+
+  /* The forecast couldn't load and nothing is saved: keep the shapes (nothing collapses), but stop the pulse and fade
+     them under the error notice. */
+  .skeleton.failed {
+    opacity: 0.5;
+  }
+  .skeleton.failed * {
+    animation: none !important;
+  }
 }

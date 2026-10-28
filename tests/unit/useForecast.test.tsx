@@ -14,7 +14,7 @@ const render = (now: number) => {
   const wrapper = ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={client}>{children}</QueryClientProvider>
   )
-  return renderHook(() => useForecast(WEDDING_DAYS, false, now), { wrapper })
+  return renderHook(() => useForecast({ days: WEDDING_DAYS, preview: false, now, savedKey: CACHE_KEY }), { wrapper })
 }
 
 describe('useForecast', () => {

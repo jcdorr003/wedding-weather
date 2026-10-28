@@ -3,12 +3,9 @@ import { NetworkReadyState } from 'msw/experimental'
 import { network } from 'virtual:msw'
 import { clock } from '../lib/time'
 import { handlersFor } from './handlers'
-import { SCENARIOS, isScenario } from './scenarios'
+import { type Scenario, SCENARIOS } from './scenarios'
 
-const param = new URLSearchParams(location.search).get('scenario')
-export const scenario = isScenario(param) ? param : 'wedding'
-
-export const startMocks = async () => {
+export const startMocks = async (scenario: Scenario) => {
   clock.pretend(SCENARIOS[scenario].now)
   const handlers = handlersFor(scenario)
   // MSW's Vite plugin may have switched the network on already; then the handlers are added to it instead.
@@ -17,20 +14,4 @@ export const startMocks = async () => {
     network.configure({ handlers, onUnhandledFrame: 'bypass' })
     await network.enable()
   }
-  return { MockBanner }
 }
-
-const MockBanner = () => (
-  <div className="mock-bar">
-    <div>
-      <b>MOCK DATA</b>: local preview only, not a real forecast. {SCENARIOS[scenario].note}
-    </div>
-    <nav>
-      {Object.entries(SCENARIOS).map(([k, s]) => (
-        <a key={k} href={`?scenario=${k}`} aria-current={k === scenario ? 'page' : undefined}>
-          {s.label}
-        </a>
-      ))}
-    </nav>
-  </div>
-)

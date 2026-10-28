@@ -29,12 +29,15 @@ export const Shell = () => (
   </div>
 )
 
-export const WeatherPage = ({ days, preview }: { days: readonly string[]; preview: boolean }) => {
+type Props = { days: readonly string[]; preview: boolean; savedKey: string }
+
+export const WeatherPage = ({ days, preview, savedKey }: Props) => {
   const now = useNow()
-  const { data, busy, error, saved, refresh, modelsLoading } = useForecast(days, preview, now)
+  const { data, busy, error, saved, refresh, modelsLoading } = useForecast({ days, preview, now, savedKey })
   const loadFailed = !!error && !data
-  // First visit with nothing saved: skeletons and the loading line until the official forecast lands.
-  const kinds = !data && !error ? predictKinds(days, now) : null
+  // Nothing to show yet (first visit, nothing saved): card-shaped skeletons until the official forecast lands. If it
+  // can't load, they stay in place, frozen and faded, under the error notice, so nothing collapses.
+  const kinds = data ? null : predictKinds(days, now)
   const cards = days.map((day) => dayCard(day, data, now))
   // Model odds still loading for a day the NWS doesn't cover yet: keep that card's skeleton.
   const awaitingModels = (i: number) => cards[i]?.kind === 'pending' && modelsLoading
@@ -49,7 +52,7 @@ export const WeatherPage = ({ days, preview }: { days: readonly string[]; previe
     <div className="wrap">
       <Header
         title={title(days)}
-        stamp={kinds ? 'Loading the latest forecast…' : stamp(data, saved, now)}
+        stamp={kinds && !error ? 'Loading the latest forecast…' : stamp(data, saved, now)}
         busy={busy}
         onRefresh={refresh}
       />
@@ -59,7 +62,7 @@ export const WeatherPage = ({ days, preview }: { days: readonly string[]; previe
         earlyNote={kinds ? kinds.includes('model') : cards.some((c, i) => c.kind === 'early' || awaitingModels(i))}
       >
         {kinds ? (
-          <DaySkeletons days={days} kinds={kinds} />
+          <DaySkeletons days={days} kinds={kinds} failed={loadFailed} />
         ) : (
           days.map((day, i) =>
             awaitingModels(i) ? (
@@ -72,7 +75,7 @@ export const WeatherPage = ({ days, preview }: { days: readonly string[]; previe
       </DaysSection>
       <TimelineSection radar={data?.links.radar}>
         {kinds ? (
-          <TimelineSkeletons days={days} kinds={kinds} />
+          <TimelineSkeletons days={days} kinds={kinds} failed={loadFailed} />
         ) : (
           <Timelines days={days.slice(1)} data={data} now={now} loadFailed={loadFailed} />
         )}

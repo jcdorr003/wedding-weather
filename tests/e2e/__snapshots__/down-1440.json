@@ -8,49 +8,81 @@
   ],
   "days": [
     {
-      "text": "Thursday Nov 5 Couldn’t load the forecast. Tap Refresh Data to try again.",
+      "text": "Thursday Nov 5 58° Low 49° Chance Rain Showers RAIN CHANCE 40% Night 30% WIND 10–15 mph from SW A chance of rain showers. Mostly cloudy, with a high near 58. Southwest wind 10 to 15 mph. Chance of precipitation is 40%. RAIN BY TIME OF DAY 0.10 in expected Early 1a–7a 30% 0.04 in Morning 1a–7a 30% 0.04 in Afternoon 1a–7a 30% 0.04 in Evening 1a–7a 30% 0.04 in Night Mostly Cloudy, low 49°, wind 5–10 mph",
       "sections": [
         "card-head",
-        "day-body"
+        "temp",
+        "cond",
+        "stats",
+        "day-text",
+        "parts-wrap",
+        "night"
       ],
       "runBars": [],
-      "parts": []
+      "parts": [
+        "part",
+        "part",
+        "part",
+        "part"
+      ]
     },
     {
-      "text": "Friday Nov 6 Couldn’t load the forecast. Tap Refresh Data to try again.",
+      "text": "Friday Nov 6 58° Low 49° Chance Rain Showers RAIN CHANCE 40% Night 30% WIND 10–15 mph from SW A chance of rain showers. Mostly cloudy, with a high near 58. Southwest wind 10 to 15 mph. Chance of precipitation is 40%. RAIN BY TIME OF DAY 0.10 in expected Early 1a–7a 30% 0.04 in Morning 1a–7a 30% 0.04 in Afternoon 1a–7a 30% 0.04 in Evening 1a–7a 30% 0.04 in Night Mostly Cloudy, low 49°, wind 5–10 mph",
       "sections": [
         "card-head",
-        "day-body"
+        "temp",
+        "cond",
+        "stats",
+        "day-text",
+        "parts-wrap",
+        "night"
       ],
       "runBars": [],
-      "parts": []
+      "parts": [
+        "part",
+        "part",
+        "part",
+        "part"
+      ]
     },
     {
-      "text": "Saturday Nov 7 Couldn’t load the forecast. Tap Refresh Data to try again.",
+      "text": "Saturday Nov 7 58° Low 49° Chance Rain Showers RAIN CHANCE 40% Night 30% WIND 10–15 mph from SW A chance of rain showers. Mostly cloudy, with a high near 58. Southwest wind 10 to 15 mph. Chance of precipitation is 40%. RAIN BY TIME OF DAY 0.10 in expected Early 1a–7a 30% 0.04 in Morning 1a–7a 30% 0.04 in Afternoon 1a–7a 30% 0.04 in Evening 1a–7a 30% 0.04 in Night Mostly Cloudy, low 49°, wind 5–10 mph",
       "sections": [
         "card-head",
-        "day-body"
+        "temp",
+        "cond",
+        "stats",
+        "day-text",
+        "parts-wrap",
+        "night"
       ],
       "runBars": [],
-      "parts": []
+      "parts": [
+        "part",
+        "part",
+        "part",
+        "part"
+      ]
     }
   ],
   "earlyNote": false,
   "timelines": [
     {
       "verdict": [
-        "Couldn’t load the forecast. Tap Refresh Data to try again."
+        "Dry from 3 PM",
+        "Rain chance reaches 20% or more between 9 AM and 2 PM, then stays under 20%. Peak 40% at 11 AM."
       ],
       "cols": [],
-      "key": null,
+      "key": "20% or more Under 20%",
       "hours": []
     },
     {
       "verdict": [
-        "Couldn’t load the forecast. Tap Refresh Data to try again."
+        "Dry from 3 PM",
+        "Rain chance reaches 20% or more between 9 AM and 2 PM, then stays under 20%. Peak 40% at 11 AM."
       ],
       "cols": [],
-      "key": null,
+      "key": "20% or more Under 20%",
       "hours": []
     }
   ],

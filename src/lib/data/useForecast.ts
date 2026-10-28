@@ -13,9 +13,11 @@ const waiting = (q: Pending, enabled: boolean) => enabled && (q.isFetching || q.
  * The forecast for `days`: a saved copy straight away (if any), then the live NWS forecast, then the extras.
  * `saved` is true while what's shown isn't from a live fetch this visit (or the latest refresh failed).
  */
-export const useForecast = (days: readonly string[], preview: boolean, now: number) => {
+type Options = { days: readonly string[]; preview: boolean; now: number; savedKey: string }
+
+export const useForecast = ({ days, preview, now, savedKey }: Options) => {
   const client = useQueryClient()
-  const [saved] = useState(() => (preview ? null : readSaved()))
+  const [saved] = useState(() => (preview ? null : readSaved(savedKey)))
 
   const core = useQuery({
     ...forecastQuery(days),
@@ -65,8 +67,8 @@ export const useForecast = (days: readonly string[], preview: boolean, now: numb
   // Save the full picture once a live fetch and all its extras have landed.
   const toSave = live && !core.isFetching && !extrasBusy && !preview ? data : null
   useEffect(() => {
-    if (toSave) writeSaved(toSave)
-  }, [toSave])
+    if (toSave) writeSaved(savedKey, toSave)
+  }, [savedKey, toSave])
 
   return {
     data,

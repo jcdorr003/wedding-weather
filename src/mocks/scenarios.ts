@@ -33,3 +33,11 @@ export const SCENARIOS = {
 } as const satisfies Record<string, { label: string; note: string; now: string }>
 export type Scenario = keyof typeof SCENARIOS
 export const isScenario = (s: string | null | undefined): s is Scenario => !!s && s in SCENARIOS
+
+export const scenarioFrom = (param: string | null | undefined): Scenario => (isScenario(param) ? param : 'wedding')
+
+/**
+ * Each scenario keeps its own saved copy, so reloading one shows its own cards straight away. "NWS down" pretends the
+ * same moment as "Wedding week", so it falls back to that scenario's saved copy, as a phone would.
+ */
+export const savedKeyFor = (scenario: Scenario) => `mock:${scenario === 'down' ? 'wedding' : scenario}`

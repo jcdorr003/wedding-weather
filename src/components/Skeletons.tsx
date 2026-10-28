@@ -52,9 +52,12 @@ const SAMPLE: Record<SkeletonKind, Card> = {
  * `kinds` is one kind per day when it's known (in the browser). In the prerendered HTML it isn't, so every
  * variant is rendered and CSS keeps the one the inline <head> script picked (see lib/skeleton.ts).
  */
-export const DaySkeletons = ({ days, kinds }: { days: readonly string[]; kinds?: SkeletonKind[] }) => {
+type Props = { days: readonly string[]; kinds?: SkeletonKind[]; failed?: boolean }
+const className = (base: string, failed?: boolean) => `card ${base} skeleton${failed ? ' failed' : ''}`
+
+export const DaySkeletons = ({ days, kinds, failed }: Props) => {
   return days.map((k, i) => (
-    <article key={k} className="card day skeleton" aria-hidden="true">
+    <article key={k} className={className('day', failed)} aria-hidden="true">
       <CardHead day={k} />
       {kinds ? (
         <DayBody card={SAMPLE[kinds[i] ?? 'model']} loadFailed={false} />
@@ -96,10 +99,10 @@ const TimelineBody = ({ day, kind }: { day: string; kind: SkeletonKind }) => {
 }
 
 /** Hourly cards for days[1..]; `kinds` lines up with `days`, as for DaySkeletons. */
-export const TimelineSkeletons = ({ days, kinds }: { days: readonly string[]; kinds?: SkeletonKind[] }) => (
+export const TimelineSkeletons = ({ days, kinds, failed }: Props) => (
   <div className="timelines" id="timelines">
     {days.slice(1).map((k, i) => (
-      <article key={k} className="card tl skeleton" aria-hidden="true">
+      <article key={k} className={className('tl', failed)} aria-hidden="true">
         <CardHead day={k} />
         {kinds ? (
           <TimelineBody day={k} kind={kinds[i + 1] ?? 'model'} />
