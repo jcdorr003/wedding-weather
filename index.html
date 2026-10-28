@@ -168,6 +168,7 @@
     color: var(--ink-2);
   }
   .section-sub { margin: -8px 0 0; font-size: 14px; color: var(--ink-2); max-width: 62ch; }
+  .section-sub a { color: inherit; }
 
   .card {
     background: var(--surface);
@@ -195,6 +196,33 @@
   .detail { margin: 0; font-size: 14px; color: var(--ink-2); }
   .night { margin: 0; font-size: 14px; color: var(--ink-2); padding-top: 12px; border-top: 1px solid var(--line); }
   .night b { color: var(--ink); font-weight: 600; }
+
+  /* NWS watches, warnings and advisories for this spot */
+  .alerts { display: grid; gap: 10px; margin-top: -16px; }
+  .alert {
+    display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; align-items: start;
+    padding: 12px 14px; border-radius: 12px; border: 1px solid var(--note-line); border-left-width: 4px;
+    background: var(--note-bg); color: var(--note-ink); font-size: 14px;
+  }
+  .alert.moderate { border-left-color: #e0912a; }
+  .alert.severe { border-left-color: #d03b3b; }
+  .alert svg { width: 22px; height: 22px; }
+  .alert-h { margin: 0; font: 600 16px/1.3 var(--serif); }
+  .alert p { margin: 0; }
+  .alert a { color: inherit; font: 500 13px var(--meta); }
+
+  /* Rain by time of day: four 6-hour blocks that match NWS's rain-amount periods */
+  .parts-wrap { display: grid; gap: 8px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .parts-h { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font: 600 11px/1.3 var(--meta); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+  .parts-h span:last-child { text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--ink-2); font-size: 12px; }
+  .parts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .part { display: grid; gap: 1px; padding: 8px 4px; border-radius: 10px; background: var(--bg); text-align: center; min-width: 0; }
+  .part.past { opacity: 0.45; }
+  .part-name { font: 500 12px/1.2 var(--meta); color: var(--ink-2); overflow-wrap: anywhere; }
+  .part-range { font: 11px/1.2 var(--meta); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .part-pop { margin-top: 4px; font-size: 18px; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .part-amt { font: 12px/1.2 var(--meta); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .parts-note { margin: 0; font-size: 13px; color: var(--ink-3); }
   .pending { margin: 0; font-size: 14px; color: var(--ink-2); }
   .pending-h { margin: 0; font-size: 17px; font-weight: 500; }
 
@@ -348,6 +376,7 @@
     </div>
   </header>
 
+  <div id="alerts" class="alerts" role="status" hidden></div>
   <div id="notice" class="notice" role="status" hidden></div>
 
   <section aria-labelledby="days-h">
@@ -358,7 +387,7 @@
 
   <section aria-labelledby="tl-h">
     <h2 id="tl-h" class="section-h">Hourly Rain Timeline</h2>
-    <p class="section-sub">Chance of rain for each hour, midnight to midnight. Tap or hover a bar for details. The dashed line is 20%, where the NWS starts calling it a “slight chance.”</p>
+    <p class="section-sub">Chance of rain for each hour, midnight to midnight. Tap or hover a bar for details. The dashed line is 20%, where the NWS starts calling it a “slight chance.” For what’s falling right now, open the <a id="radar-link" href="https://radar.weather.gov/" target="_blank" rel="noopener">live NWS radar</a>.</p>
     <div class="timelines" id="timelines"></div>
   </section>
 
@@ -402,6 +431,11 @@
     timeZone: TZ, weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short'
   }).format(new Date(iso));
   const fmtTime = iso => new Intl.DateTimeFormat('en-US', { timeZone: TZ, hour: 'numeric', minute: '2-digit' }).format(new Date(iso));
+  const nyDate = d => new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+  const nowHourNY = () => Number(new Intl.DateTimeFormat('en-US', { timeZone: TZ, hour: '2-digit', hourCycle: 'h23' }).format(new Date()));
+  const fmtIssued = iso => nyDate(new Date(iso)) === todayNY()
+    ? fmtTime(iso)
+    : new Intl.DateTimeFormat('en-US', { timeZone: TZ, weekday: 'short', hour: 'numeric', minute: '2-digit' }).format(new Date(iso));
   const weekday = s => fmtDate(s, { weekday: 'long' });
   const shortDate = s => fmtDate(s, { month: 'short', day: 'numeric' });
 
@@ -445,6 +479,7 @@
 
   const slimDaily = p => ({
     date: p.startTime.slice(0, 10),
+    hour: Number(p.startTime.slice(11, 13)),
     isDaytime: p.isDaytime,
     temp: p.temperature,
     pop: p.probabilityOfPrecipitation?.value ?? 0,
@@ -455,6 +490,7 @@
   });
 
   const slimHourly = p => ({
+    t: Date.parse(p.startTime),
     date: p.startTime.slice(0, 10),
     hour: Number(p.startTime.slice(11, 13)),
     temp: p.temperature,
@@ -480,9 +516,50 @@
       issued: daily.properties.updateTime || daily.properties.generatedAt || null,
       dailyEnd: dp[dp.length - 1].startTime.slice(0, 10),
       hourlyEnd: hp[hp.length - 1].startTime,
+      gridUrl: pp.forecastGridData || null,
+      links: {
+        radar: pp.radarStation || null,
+        zone: String(pp.forecastZone || '').split('/').pop() || null,
+        county: String(pp.county || '').split('/').pop() || null
+      },
       daily: dp.filter(p => DAYS.includes(p.startTime.slice(0, 10))).map(slimDaily),
-      hourly: hp.filter(p => TIMELINE_DAYS.includes(p.startTime.slice(0, 10))).map(slimHourly)
+      // Every wedding day plus the next morning, so the evening block (7 PM–1 AM) has its last hour.
+      hourly: hp.filter(p => NEAR.has(p.startTime.slice(0, 10))).map(slimHourly)
     };
+  }
+
+  // ---- NWS detailed grid: rain amounts, gusts, thunder ----
+  const NEAR = new Set(DAYS.flatMap(k => [k, addDays(k, 1)]));
+  const HOUR = 3600e3;
+  const nyFmt = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hourCycle: 'h23' });
+  const nyAt = ms => {
+    const x = Object.fromEntries(nyFmt.formatToParts(new Date(ms)).map(q => [q.type, q.value]));
+    return { date: `${x.year}-${x.month}-${x.day}`, hour: Number(x.hour) };
+  };
+  const durHours = d => { const m = /^P(?:(\d+)D)?(?:T(?:(\d+)H)?)?$/.exec(d || ''); return m ? Number(m[1] || 0) * 24 + Number(m[2] || 0) : 0; };
+
+  // Spread a grid layer over local hours: { 'YYYY-MM-DD|H': value }, wedding days only.
+  function byHour(layer) {
+    const out = {};
+    for (const { validTime, value } of layer?.values || []) {
+      const [start, dur] = validTime.split('/');
+      const t0 = Date.parse(start), n = durHours(dur);
+      for (let i = 0; i < n; i++) {
+        const { date, hour } = nyAt(t0 + i * HOUR);
+        if (NEAR.has(date) && value != null) out[`${date}|${hour}`] = value;
+      }
+    }
+    return out;
+  }
+
+  async function loadDetails(url) {
+    const g = (await getJSON(url))?.properties;
+    if (!g) throw new FetchError('empty');
+    const qpf = (g.quantitativePrecipitation?.values || []).map(({ validTime, value }) => {
+      const [start, dur] = validTime.split('/');
+      return { t0: Date.parse(start), hours: durHours(dur), mm: value ?? 0 };
+    }).filter(q => NEAR.has(nyAt(q.t0).date) || NEAR.has(nyAt(q.t0 + q.hours * HOUR - 1).date));
+    return { qpf, gustKmh: byHour(g.windGust), thunder: byHour(g.probabilityOfThunder) };
   }
 
   // Ensemble share of rainy runs per day, for days the NWS forecast doesn't reach yet.
@@ -519,6 +596,15 @@
     return { days };
   }
 
+  const SEVERITY = { Extreme: 0, Severe: 1, Moderate: 2, Minor: 3, Unknown: 4 };
+  async function loadAlerts() {
+    const res = await getJSON(`https://api.weather.gov/alerts/active?point=${POINT.lat},${POINT.lon}`, { tries: 2 });
+    return (res?.features || []).map(f => f.properties)
+      .filter(a => a && a.status === 'Actual' && a.messageType !== 'Cancel')
+      .map(a => ({ event: a.event, headline: a.headline || a.parameters?.NWSheadline?.[0] || '', severity: a.severity || 'Unknown', ends: a.ends || a.expires || null }))
+      .sort((x, y) => (SEVERITY[x.severity] ?? 4) - (SEVERITY[y.severity] ?? 4));
+  }
+
   function friendlyError(e) {
     if (navigator.onLine === false) return 'Your device looks offline. Reconnect, then tap Refresh Data.';
     if (e?.kind === 'timeout') return 'The National Weather Service is responding slowly right now. Tap Refresh Data again in a minute.';
@@ -552,15 +638,18 @@
     const head = `<div class="card-head"><h3>${weekday(key)}</h3><span class="date">${shortDate(key)}</span></div>`;
     const periods = data ? data.daily.filter(p => p.date === key) : [];
     const day = periods.find(p => p.isDaytime);
-    const night = periods.find(p => !p.isDaytime);
+    // Between midnight and 6 AM the forecast opens with an "Overnight" period; that night's forecast is the one starting in the evening.
+    const night = periods.find(p => !p.isDaytime && (p.hour ?? 18) >= 12);
 
     if (!day && !night) {
       const runs = data?.models?.days?.[key];
       if (runs) return `<article class="card day">${head}${earlyRead(key, runs)}</article>`;
-      const body = data
-        ? `<p class="pending-h">Not in the forecast yet</p>
-           <p class="pending">The NWS 7-day forecast currently runs through ${esc(fmtDate(data.dailyEnd, { weekday: 'short', month: 'short', day: 'numeric' }))}. ${weekday(key)} ${pendingWhen(key)}.</p>`
-        : `<p class="pending">Waiting for the forecast…</p>`;
+      const body = key < todayNY()
+        ? `<p class="pending">This day has passed.</p>`
+        : data
+          ? `<p class="pending-h">Not in the forecast yet</p>
+             <p class="pending">The NWS 7-day forecast currently runs through ${esc(fmtDate(data.dailyEnd, { weekday: 'short', month: 'short', day: 'numeric' }))}. ${weekday(key)} ${pendingWhen(key)}.</p>`
+          : `<p class="pending">${noDataText()}</p>`;
       return `<article class="card day">${head}${body}</article>`;
     }
 
@@ -568,7 +657,15 @@
     const hi = day ? `${day.temp}°` : '—';
     const lo = night ? `Low ${night.temp}°` : '';
     const rainSub = day && night ? `<dd class="sub">Night ${pct(night.pop)}</dd>` : '';
-    const dir = main.dir ? `<dd class="sub">from ${esc(main.dir)}</dd>` : '';
+    // Daytime gusts (6 AM–6 PM), shown only when clearly stronger than the steady wind.
+    let gust = null;
+    if (data.details && day) for (let h = 6; h < 18; h++) { const v = data.details.gustKmh[`${key}|${h}`]; if (v != null) gust = Math.max(gust ?? 0, v / 1.609344); }
+    const steady = Math.max(0, ...(String(main.wind).match(/\d+/g) || []).map(Number));
+    const gustText = gust != null && Math.round(gust) >= steady + 5 ? ` · gusts to ${Math.round(gust)} mph` : '';
+    const dir = main.dir || gustText ? `<dd class="sub">${main.dir ? `from ${esc(main.dir)}` : ''}${gustText}</dd>` : '';
+    let thunder = 0;
+    if (data.details) for (let h = 0; h < 24; h++) thunder = Math.max(thunder, data.details.thunder[`${key}|${h}`] ?? 0);
+    const thunderLine = thunder >= 15 ? `<p class="detail">Chance of thunder up to ${Math.round(thunder)}%.</p>` : '';
     const nightLine = day && night
       ? `<p class="night"><b>Night</b> ${esc(night.sky)}, low ${night.temp}°, wind ${esc(windRange(night.wind))}</p>`
       : '';
@@ -582,16 +679,67 @@
         <div><dt>Wind</dt><dd>${esc(windRange(main.wind))}</dd>${dir}</div>
       </dl>
       ${main.detail ? `<p class="detail">${esc(main.detail)}</p>` : ''}
+      ${thunderLine}
+      ${partsOfDay(key, data)}
       ${nightLine}
     </article>`;
   }
 
+  const shortHour = ms => { const h = nyAt(ms).hour; return `${h % 12 || 12}${h < 12 ? 'a' : 'p'}`; };
+  const fmtInches = mm => (mm === 0 ? 'None' : mm / 25.4 < 0.01 ? '<0.01 in' : `${(mm / 25.4).toFixed(2)} in`);
+
+  // Rain amount in [a, b), only when NWS has 6-hour amounts that fit exactly inside it.
+  function blockAmount(details, a, b) {
+    if (!details) return null;
+    const qs = details.qpf.filter(q => q.t0 < b && q.t0 + q.hours * HOUR > a);
+    if (qs.some(q => q.t0 < a || q.t0 + q.hours * HOUR > b)) return null;
+    if (qs.reduce((n, q) => n + q.hours, 0) < (b - a) / HOUR) return null;
+    return qs.reduce((n, q) => n + q.mm, 0);
+  }
+
+  // Four 6-hour blocks starting at 06:00 UTC (1 AM in November), lined up with NWS's rain-amount periods.
+  function partsOfDay(key, data) {
+    const names = ['Early', 'Morning', 'Afternoon', 'Evening'];
+    const base = Date.parse(`${key}T06:00:00Z`);
+    const now = Date.now();
+    const blocks = names.map((name, i) => {
+      const a = base + i * 6 * HOUR, b = a + 6 * HOUR;
+      const hrs = (data.hourly || []).filter(h => h.t >= a && h.t < b);
+      return {
+        name, range: `${shortHour(a)}–${shortHour(b)}`, past: b <= now,
+        chance: hrs.length ? Math.max(...hrs.map(h => h.pop)) : null,
+        amount: blockAmount(data.details, a, b)
+      };
+    });
+    if (blocks.every(x => x.chance == null && x.amount == null)) return '';
+
+    const amounts = blocks.filter(x => !x.past).map(x => x.amount);
+    const allKnown = amounts.length && amounts.every(x => x != null);
+    const total = allKnown ? fmtInches(amounts.reduce((n, x) => n + x, 0)) : '';
+    const expected = addDays(key, -3);
+    const note = allKnown ? ''
+      : `<p class="parts-note">NWS rain amounts come out about 3 days ahead${expected > todayNY() ? `, around ${fmtDate(expected, { weekday: 'long', month: 'short', day: 'numeric' })}` : ''}.</p>`;
+
+    const cells = blocks.map(x => `<div class="part${x.past ? ' past' : ''}">
+        <span class="part-name">${x.name}</span>
+        <span class="part-range">${x.range}</span>
+        <span class="part-pop">${x.past ? '—' : x.chance == null ? '—' : pct(x.chance)}</span>
+        <span class="part-amt">${x.past ? 'Passed' : x.amount == null ? '—' : fmtInches(x.amount)}</span>
+      </div>`).join('');
+    return `<div class="parts-wrap">
+      <div class="parts-h"><span>Rain by time of day</span><span>${total ? `${total} expected${blocks.some(x => x.past) ? ' from now' : ''}` : ''}</span></div>
+      <div class="parts" role="list">${cells}</div>
+      ${note}
+    </div>`;
+  }
+
+  // Each model counts equally, whatever its number of runs.
+  const runShare = (runs, field) => runs.reduce((a, r) => a + r[field] / r.total, 0) / runs.length * 100;
+  const inTen = p => { const t = Math.round(p / 10); return t === 0 ? 'Fewer than 1 in 10' : t === 10 ? 'Nearly all' : `About ${t} in 10`; };
+
   function earlyRead(key, runs) {
-    // Each model counts equally, whatever its number of runs.
-    const p = runs.reduce((a, r) => a + r.wet / r.total, 0) / runs.length * 100;
+    const p = runShare(runs, 'wet');
     const head = p < 35 ? 'Leaning dry' : p <= 65 ? 'Could go either way' : 'Leaning wet';
-    const tens = Math.round(p / 10);
-    const share = tens === 0 ? 'Fewer than 1 in 10' : tens === 10 ? 'Nearly all' : `About ${tens} in 10`;
     const rows = runs.map(r => `<div class="run">
         <span class="run-name">${esc(r.name)}</span>
         <span class="run-bar" aria-hidden="true"><i style="width:${(r.wet / r.total) * 100}%"></i></span>
@@ -599,7 +747,7 @@
       </div>`).join('');
     return `<p class="early-tag">Early model read</p>
       <p class="early-h">${head}</p>
-      <p class="early-sub">${share} model runs show rain that day.</p>
+      <p class="early-sub">${inTen(p)} model runs show rain that day. Confidence is low this far out, so expect this to shift.</p>
       <div class="runs">${rows}</div>
       <p class="pending">The official NWS forecast for ${weekday(key)} ${pendingWhen(key)}.</p>`;
   }
@@ -611,24 +759,29 @@
     return hours;
   }
 
+  // Hours before this one have already happened (NWS only forecasts from the current hour on).
+  const pastBefore = key => (key < todayNY() ? 24 : key === todayNY() ? nowHourNY() : 0);
+
   function verdict(hours) {
     const have = hours.map((h, i) => (h ? i : -1)).filter(i => i >= 0);
     if (!have.length) return null;
     const pop = i => hours[i].pop;
     const last = have[have.length - 1];
-    const partial = have.length < 24;
+    const endsEarly = last < 23;          // the forecast hasn't reached the end of this day yet
+    const startsLate = have[0] > 0;       // earlier hours of this day have already passed
     const peakI = have.reduce((a, b) => (pop(b) > pop(a) ? b : a));
     const peak = pop(peakI) > 0 ? ` Peak ${pct(pop(peakI))} at ${hourLabel(peakI)}.` : '';
-    const endsNote = partial ? ` Hourly data currently ends at ${hourLabel(last)}.` : '';
+    const endsNote = endsEarly ? ` Hourly data currently ends at ${hourLabel(last)}.` : '';
     const wet = have.filter(i => pop(i) >= THRESHOLD);
 
     if (!wet.length) {
-      return { head: partial ? 'Dry so far' : 'Dry all day', sub: `Rain chance stays under ${THRESHOLD}% every hour.${peak}${endsNote}` };
+      const head = endsEarly ? 'Dry so far' : startsLate ? 'Dry the rest of the day' : 'Dry all day';
+      return { head, sub: `Rain chance stays under ${THRESHOLD}% every ${startsLate ? 'remaining ' : ''}hour.${peak}${endsNote}` };
     }
     const firstWet = wet[0];
     const lastWet = wet[wet.length - 1];
     if (lastWet === last) {
-      return partial
+      return endsEarly
         ? { head: `Still ${pct(pop(last))} at ${hourLabel(last)}`, sub: `The hourly forecast ends before the rain chance drops below ${THRESHOLD}%.${peak}` }
         : { head: `Still ${pct(pop(23))} at 11 PM`, sub: `Rain chance doesn’t drop below ${THRESHOLD}% before midnight.${peak}` };
     }
@@ -644,16 +797,20 @@
     const head = `<div class="card-head"><h3>${weekday(key)}</h3><span class="date">${shortDate(key)}</span></div>`;
     const hours = hoursFor(key, data);
     const v = verdict(hours);
+    const past = pastBefore(key);
+
+    if (!v && (past >= 24 || !data)) {
+      const text = past >= 24 ? 'This day has passed.' : noDataText();
+      return `<article class="card tl">${head}<div><p class="verdict-sub">${text}</p></div></article>`;
+    }
 
     const verdictHtml = v
       ? `<div><p class="verdict-h">${esc(v.head)}</p><p class="verdict-sub">${esc(v.sub)}</p></div>`
-      : data
-        ? `<div><p class="verdict-h">Hourly data not out yet</p><p class="verdict-sub">The NWS hourly forecast currently runs through ${esc(fmtStamp(data.hourlyEnd))}. ${weekday(key)}’s hours ${pendingWhen(key)}.</p></div>`
-        : `<div><p class="verdict-sub">Waiting for the forecast…</p></div>`;
+      : `<div><p class="verdict-h">Hourly data not out yet</p><p class="verdict-sub">The NWS hourly forecast currently runs through ${esc(fmtStamp(data.hourlyEnd))}. ${weekday(key)}’s hours ${pendingWhen(key)}.</p></div>`;
 
     const cols = hours.map((h, i) => {
       if (!h) {
-        return `<div class="col missing" role="listitem" tabindex="0" data-day="${key}" data-h="${i}" aria-label="${hourLabel(i)}: no hourly data yet"><i></i></div>`;
+        return `<div class="col missing" role="listitem" tabindex="0" data-day="${key}" data-h="${i}" aria-label="${hourLabel(i)}: ${i < past ? 'already passed' : 'no hourly data yet'}"><i></i></div>`;
       }
       const cls = ['col', h.pop >= THRESHOLD ? 'wet' : '', v && v.clearAt === i ? 'clear-start' : ''].filter(Boolean).join(' ');
       const label = `${hourLabel(i)}: ${pct(h.pop)} chance of rain, ${h.temp}°F, ${h.sky}`;
@@ -693,21 +850,45 @@
 
   // ---- render: everything ----
   let current = null;
+  let loadFailed = false;
+  const noDataText = () => (loadFailed ? 'Couldn’t load the forecast. Tap Refresh Data to try again.' : 'Loading the forecast…');
 
   function render(data) {
     current = data;
     $('days').innerHTML = DAYS.map(k => dayCard(k, data)).join('');
     $('early-note').hidden = !document.querySelector('.early-tag');
     $('timelines').innerHTML = TIMELINE_DAYS.map(k => timelineCard(k, data)).join('');
+    renderAlerts(data);
+    if (data?.links?.radar) $('radar-link').href = `https://radar.weather.gov/station/${encodeURIComponent(data.links.radar.toLowerCase())}/standard`;
     if (data?.grid) {
       $('footer').innerHTML = `Forecast from the <a href="https://forecast.weather.gov/MapClick.php?lat=${POINT.lat}&lon=${POINT.lon}" target="_blank" rel="noopener">National Weather Service</a>, ${esc(data.grid.office)} grid ${esc(data.grid.x)},${esc(data.grid.y)} (40.665° N, 73.971° W).`;
     }
     hideTip();
   }
 
+  const ALERT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2.5 20h19L12 3Z"/><path d="M12 10v4.5"/><path d="M12 17.5h.01"/></svg>';
+
+  function renderAlerts(data) {
+    const now = Date.now();
+    const list = (data?.alerts || []).filter(a => !a.ends || Date.parse(a.ends) > now);
+    const box = $('alerts');
+    box.hidden = !list.length;
+    const more = data?.links?.zone && data?.links?.county
+      ? `https://forecast.weather.gov/showsigwx.php?warnzone=${encodeURIComponent(data.links.zone)}&warncounty=${encodeURIComponent(data.links.county)}`
+      : `https://forecast.weather.gov/MapClick.php?lat=${POINT.lat}&lon=${POINT.lon}`;
+    box.innerHTML = list.map(a => {
+      const level = a.severity === 'Extreme' || a.severity === 'Severe' ? 'severe' : a.severity === 'Moderate' ? 'moderate' : '';
+      return `<div class="alert ${level}">${ALERT_ICON}<div>
+          <p class="alert-h">${esc(a.event)}</p>
+          ${a.headline ? `<p>${esc(a.headline)}</p>` : ''}
+          <a href="${more}" target="_blank" rel="noopener">Read the full alert from the NWS</a>
+        </div></div>`;
+    }).join('');
+  }
+
   function setStamp(data, { saved = false } = {}) {
     if (!data) { $('stamp').textContent = 'No forecast loaded yet'; return; }
-    const issued = data.issued ? ` · NWS forecast issued ${fmtTime(data.issued)}` : '';
+    const issued = data.issued ? ` · NWS forecast issued ${fmtIssued(data.issued)}` : '';
     $('stamp').textContent = `${saved ? 'Saved copy from' : 'Updated'} ${fmtStamp(data.fetchedAt)}${issued}`;
   }
 
@@ -736,18 +917,30 @@
 
     try {
       const data = await loadFromNWS();
+      loadFailed = false;
       // Model data is a bonus: if it fails, those days just show when the official forecast arrives.
-      const uncovered = DAYS.filter(k => !data.daily.some(p => p.date === k));
-      data.models = uncovered.length ? await loadModels(uncovered).catch(() => null) : null;
-      if (!PREVIEW) cache.write(data);
+      // Show the official forecast right away and fill in the model read when it lands.
+      const uncovered = DAYS.filter(k => k >= todayNY() && !data.daily.some(p => p.date === k));
+      data.models = uncovered.length ? (current?.models ?? null) : null;
+      data.alerts = current?.alerts ?? null;
+      // Rain amounts, gusts and thunder only matter once a wedding day is inside the 7-day forecast.
+      const inRange = DAYS.some(k => k >= todayNY() && k <= data.dailyEnd);
+      data.details = inRange && data.gridUrl ? (current?.details ?? null) : null;
       render(data);
       setStamp(data);
       showNotice([previewLine]);
+      // On failure, drop any older saved extras rather than show them under a fresh timestamp.
+      const extras = [];
+      if (uncovered.length) extras.push(loadModels(uncovered).catch(() => null).then(m => { data.models = m; }));
+      if (inRange && data.gridUrl) extras.push(loadDetails(data.gridUrl).catch(() => null).then(d => { data.details = d; }));
+      extras.push(loadAlerts().catch(() => null).then(a => { data.alerts = a; }));
+      if (extras.length) { await Promise.all(extras); render(data); }
+      if (!PREVIEW) cache.write(data);
     } catch (e) {
       const fallback = current ? `Still showing the last good update from ${fmtStamp(current.fetchedAt)}.` : '';
       showNotice([previewLine, friendlyError(e), fallback]);
       if (current) setStamp(current, { saved: true });
-      else setStamp(null);
+      else { loadFailed = true; render(null); setStamp(null); }
     } finally {
       busy = false;
       btn.disabled = false;
@@ -766,7 +959,7 @@
     const tip = $('tip');
     tip.innerHTML = h
       ? `<b>${hour} · ${pct(h.pop)} rain</b><br>${h.temp}°F · ${esc(h.sky)}<br>Wind ${esc(h.dir || '')} ${esc(h.wind)}`
-      : `<b>${hour}</b><br>No hourly data yet`;
+      : `<b>${hour}</b><br>${Number(col.dataset.h) < pastBefore(col.dataset.day) ? 'Already passed' : 'No hourly data yet'}`;
     tip.hidden = false;
 
     if (activeCol && activeCol !== col) activeCol.classList.remove('active');
