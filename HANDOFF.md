@@ -4,9 +4,10 @@ Windows/WSL → owner's Mac (Oct 27) → back to the Windows PC (Oct 28). Read `
 
 ## State
 
-- `main` = what's live. Last deploy: dark-mode tab and Home Screen icons.
-- **This branch (`audit-fixes`) is tested but NOT approved for deploy yet.** The owner was given the mock page
-  to try and has not said yes. Do not merge until they do.
+- `main` = what's live. **Deployed Oct 28 ~1:40 AM EDT (`1528b63`): this branch's `index.html`** after the owner
+  re-checked the mock and said yes. Verified: live HTML byte-identical, manifest/icons 200, Chrome installability
+  only `in-incognito`.
+- React work continues on `react-migration` (branched from here). See its HANDOFF.md.
 
 ## Next: React migration (requested Oct 28, ~1 AM EDT)
 
