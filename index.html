@@ -183,7 +183,21 @@
 
   /* Day cards */
   .days { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-  .day { display: grid; gap: 14px; align-content: start; }
+  .day, .day-body, .day-text { display: grid; gap: 14px; align-content: start; }
+  /* Side by side, each section lines up with the same section in the other cards, whatever its text length. */
+  @supports (grid-template-rows: subgrid) {
+    @media (min-width: 761px) {
+      .day { grid-row: span 7; grid-template-rows: subgrid; }
+      .day > .card-head { grid-row: 1; }
+      .day > .temp { grid-row: 2; }
+      .day > .cond { grid-row: 3; }
+      .day > .stats { grid-row: 4; }
+      .day > .day-text { grid-row: 5; }
+      .day > .parts-wrap { grid-row: 6; }
+      .day > .night { grid-row: 7; }
+      .day > .day-body { grid-row: 2 / span 6; }
+    }
+  }
   .temp { display: flex; align-items: baseline; gap: 12px; }
   .hi { font: 400 52px/1 var(--serif); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
   .lo { font-size: 15px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
@@ -643,14 +657,14 @@
 
     if (!day && !night) {
       const runs = data?.models?.days?.[key];
-      if (runs) return `<article class="card day">${head}${earlyRead(key, runs)}</article>`;
+      if (runs) return `<article class="card day">${head}<div class="day-body">${earlyRead(key, runs)}</div></article>`;
       const body = key < todayNY()
         ? `<p class="pending">This day has passed.</p>`
         : data
           ? `<p class="pending-h">Not in the forecast yet</p>
              <p class="pending">The NWS 7-day forecast currently runs through ${esc(fmtDate(data.dailyEnd, { weekday: 'short', month: 'short', day: 'numeric' }))}. ${weekday(key)} ${pendingWhen(key)}.</p>`
           : `<p class="pending">${noDataText()}</p>`;
-      return `<article class="card day">${head}${body}</article>`;
+      return `<article class="card day">${head}<div class="day-body">${body}</div></article>`;
     }
 
     const main = day || night;
@@ -678,8 +692,7 @@
         <div><dt>Rain chance</dt><dd>${pct(main.pop)}</dd>${rainSub}</div>
         <div><dt>Wind</dt><dd>${esc(windRange(main.wind))}</dd>${dir}</div>
       </dl>
-      ${main.detail ? `<p class="detail">${esc(main.detail)}</p>` : ''}
-      ${thunderLine}
+      <div class="day-text">${main.detail ? `<p class="detail">${esc(main.detail)}</p>` : ''}${thunderLine}</div>
       ${partsOfDay(key, data)}
       ${nightLine}
     </article>`;
